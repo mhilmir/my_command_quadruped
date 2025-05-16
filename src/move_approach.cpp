@@ -105,7 +105,7 @@ public:
         double lin_speed = 0.2;  // m/s
         double ang_speed = 0.30;  // rad/s
         // double linx_distance = 0.15;  // meter
-        double liny_distance = 0.55;  // meter
+        double liny_distance = 0.75;  // meter
         double ang_distance = pi/2;  // rad
         move(0, 0, -ang_speed, ang_distance/ang_speed);  // 90 degrees turn right
         // move(-lin_speed, 0, 0, linx_distance/lin_speed);  // move backward little bit
@@ -123,21 +123,25 @@ public:
             geometry_msgs::Twist vel;
 
             if (tracked_){
-                double x_offset = center_.x - (frame_width_ / 2.0);
-                if (std::abs(x_offset) > center_threshold_){
-                    vel.angular.z = -0.0015 * x_offset;  // Turn towards the object
+                double x_error = center_.x - (frame_width_ / 2.0);
+                if (std::abs(x_error) > center_threshold_){
+                    vel.angular.z = -0.0015 * x_error;  // Turn towards the object
+                    ROS_INFO("x error: %f", x_error);
                 } else{
                     // ROS_INFO("yaw aligned");
                 }
-
+                
                 int distance_error = desired_distance_ - depth_;
                 if (std::abs(distance_error) > distance_threshold_){
                     vel.linear.x = -0.00025 * distance_error;  // Move forward/backward
+                    ROS_INFO("distance error: %f", distance_error);
                 } else{
                     // ROS_INFO("distance ok");
                 }
 
-                bool yaw_aligned = std::abs(x_offset) < center_threshold_;
+
+
+                bool yaw_aligned = std::abs(x_error) < center_threshold_;
                 bool distance_ok = std::abs(distance_error) < distance_threshold_;
                 if(yaw_aligned && distance_ok){
                     if(!aligned_){

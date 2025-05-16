@@ -20,6 +20,7 @@ color_image = None
 depth_image = None
 bridge = CvBridge()
 frame_count = 0  # For YOLO detection interval
+yolo_enabled = False  # New flag for toggling YOLO detection
 
 def click_event(event, x, y, flags, param):
     global clicked_point
@@ -51,7 +52,7 @@ def depth_callback(msg):
         rospy.logerr(f"Failed to convert depth image: {e}")
 
 def main():
-    global tracker, tracking, clicked_point, detected_boxes, search, color_image, depth_image, frame_count
+    global tracker, tracking, clicked_point, detected_boxes, search, color_image, depth_image, frame_count, yolo_enabled
 
     rospy.init_node('deteck_n_track_opt_node', anonymous=True)
 
@@ -86,11 +87,13 @@ def main():
         has_box = False
         bb_center_msg = Point()
         bb_depth_msg = Int32()
+        detected_boxes = []
 
         if not tracking:
-            if frame_count % 3 == 0:
+            # if yolo_enabled and frame_count % 3 == 0:
+            if yolo_enabled:
                 results = model(img_for_model, conf=0.4, verbose=False)
-                detected_boxes = []
+                # detected_boxes = []
                 h_scale = color_image.shape[0] / 416
                 w_scale = color_image.shape[1] / 416
 
@@ -150,8 +153,11 @@ def main():
             tracking = False
             tracker = None
             rospy.loginfo("Tracking canceled.")
+        elif key == ord('y'):
+            yolo_enabled = not yolo_enabled
+            rospy.loginfo(f"YOLO Detection {'Enabled' if yolo_enabled else 'Disabled'}")
 
-        frame_count += 1
+        # frame_count += 1
         rate.sleep()
 
     cv2.destroyAllWindows()
