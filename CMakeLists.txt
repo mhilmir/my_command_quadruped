@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(my_command)
+project(my_command_quadruped)
+
+set(PYTHON_EXECUTABLE "/home/ysc/miniconda3/envs/python3.8-env/bin/python")
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -110,7 +112,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES my_command
+#  LIBRARIES my_command_quadruped
 #  CATKIN_DEPENDS roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
@@ -124,22 +126,22 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
-  ${CMAKE_SOURCE_DIR}/../Lite3_MotionSDK/include
-  ${CMAKE_SOURCE_DIR}/../Lite3_MotionSDK/include/common
-  ${CMAKE_SOURCE_DIR}/../Lite3_MotionSDK/lib/eigen3
+  # ${CMAKE_SOURCE_DIR}/../Lite3_MotionSDK/include
+  # ${CMAKE_SOURCE_DIR}/../Lite3_MotionSDK/include/common
+  # ${CMAKE_SOURCE_DIR}/../Lite3_MotionSDK/lib/eigen3
 )
 
-link_directories(
-  ${CMAKE_SOURCE_DIR}/../Lite3_MotionSDK/lib
-)
+# link_directories(
+#   ${CMAKE_SOURCE_DIR}/../Lite3_MotionSDK/lib
+# )
 
-file(GLOB SDK_SOURCES
-    ${CMAKE_SOURCE_DIR}/../Lite3_MotionSDK/src/*.cpp
-)
+# file(GLOB SDK_SOURCES
+#     ${CMAKE_SOURCE_DIR}/../Lite3_MotionSDK/src/*.cpp
+# )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/my_command.cpp
+#   src/${PROJECT_NAME}/my_command_quadruped.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -153,7 +155,7 @@ file(GLOB SDK_SOURCES
 add_executable(hello_world_cpp_node src/helloworld.cpp)
 add_executable(move_square_node src/move_square.cpp)
 add_executable(move_approach_node src/move_approach.cpp)
-add_executable(test_Lite3MotionSDK_node src/test_Lite3MotionSDK.cpp ${SDK_SOURCES})
+# add_executable(test_Lite3MotionSDK_node src/test_Lite3MotionSDK.cpp ${SDK_SOURCES})
 add_executable(simpleCMD_pub_node src/simpleCMD_pub.cpp)
 
 ## Rename C++ executable without prefix
@@ -167,14 +169,14 @@ add_executable(simpleCMD_pub_node src/simpleCMD_pub.cpp)
 add_dependencies(hello_world_cpp_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(move_square_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(move_approach_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(test_Lite3MotionSDK_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(test_Lite3MotionSDK_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(simpleCMD_pub_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(hello_world_cpp_node ${catkin_LIBRARIES})
 target_link_libraries(move_square_node ${catkin_LIBRARIES})
 target_link_libraries(move_approach_node ${catkin_LIBRARIES})
-target_link_libraries(test_Lite3MotionSDK_node ${catkin_LIBRARIES} deeprobotics_legged_sdk_x86_64)
+# target_link_libraries(test_Lite3MotionSDK_node ${catkin_LIBRARIES} deeprobotics_legged_sdk_x86_64)
 target_link_libraries(simpleCMD_pub_node ${catkin_LIBRARIES})
 
 #############
@@ -192,6 +194,22 @@ target_link_libraries(simpleCMD_pub_node ${catkin_LIBRARIES})
 # )
 catkin_install_python(PROGRAMS
   scripts/ros_detect_n_track.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+catkin_install_python(PROGRAMS
+scripts/ros_rs_stream.py
+DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+catkin_install_python(PROGRAMS
+scripts/check_ver.py
+DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+catkin_install_python(PROGRAMS
+scripts/ros_detect_optimization.py
+DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+catkin_install_python(PROGRAMS
+  scripts/ros_detect_n_track_opt.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
@@ -228,7 +246,7 @@ catkin_install_python(PROGRAMS
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_my_command.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_my_command_quadruped.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

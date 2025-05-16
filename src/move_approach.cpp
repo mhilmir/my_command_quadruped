@@ -105,13 +105,13 @@ public:
         double lin_speed = 0.2;  // m/s
         double ang_speed = 0.30;  // rad/s
         // double linx_distance = 0.15;  // meter
-        double liny_distance = 0.45;  // meter
+        double liny_distance = 0.55;  // meter
         double ang_distance = pi/2;  // rad
         move(0, 0, -ang_speed, ang_distance/ang_speed);  // 90 degrees turn right
         // move(-lin_speed, 0, 0, linx_distance/lin_speed);  // move backward little bit
         move(0, lin_speed, 0, liny_distance/lin_speed);  // going left little bit
         ros::Duration(2).sleep();
-        simpleCMD_send(0x21010202, 0, 0);
+        simpleCMD_send(0x21010202, 0, 0);  // robot sit/stand
 
         ROS_INFO("Finish, now Sit down");
     }
@@ -125,14 +125,14 @@ public:
             if (tracked_){
                 double x_offset = center_.x - (frame_width_ / 2.0);
                 if (std::abs(x_offset) > center_threshold_){
-                    vel.angular.z = -0.002 * x_offset;  // Turn towards the object
+                    vel.angular.z = -0.0015 * x_offset;  // Turn towards the object
                 } else{
                     // ROS_INFO("yaw aligned");
                 }
 
                 int distance_error = desired_distance_ - depth_;
                 if (std::abs(distance_error) > distance_threshold_){
-                    vel.linear.x = -0.001 * distance_error;  // Move forward/backward
+                    vel.linear.x = -0.00025 * distance_error;  // Move forward/backward
                 } else{
                     // ROS_INFO("distance ok");
                 }
@@ -145,7 +145,7 @@ public:
                         aligned_time_ = ros::Time::now();
                         aligned_ = true;
                     } else if((ros::Time::now() - aligned_time_).toSec() >= 4.0){
-                        ROS_INFO("Robot is going to Approach");
+                        ROS_INFO("Robot is going to Approach..");
                         break;
                     }
                 } else{
@@ -243,7 +243,7 @@ int main(int argc, char** argv){
     ros::init(argc, argv, "move_approach_node");
     MyRobot my_robot;
 
-    my_robot.search();
+    // my_robot.search();
     my_robot.approach();
     my_robot.approach_sit();
     

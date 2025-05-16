@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>my_command</name>
+  <name>my_command_quadruped</name>
   <version>0.0.0</version>
-  <description>The my_command package</description>
+  <description>The my_command_quadruped package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/my_command</url> -->
+  <!-- <url type="website">http://wiki.ros.org/my_command_quadruped</url> -->
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->
