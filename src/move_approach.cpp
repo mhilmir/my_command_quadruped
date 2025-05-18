@@ -125,7 +125,7 @@ public:
             if (tracked_){
                 double x_error = center_.x - (frame_width_ / 2.0);
                 if (std::abs(x_error) > center_threshold_){
-                    vel.angular.z = -0.0015 * x_error;  // Turn towards the object
+                    vel.angular.z = -0.002 * x_error;  // Turn towards the object
                     ROS_INFO("x error: %f", x_error);
                 } else{
                     // ROS_INFO("yaw aligned");
