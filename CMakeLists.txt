@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(my_command_quadruped)
 
-set(PYTHON_EXECUTABLE "/home/ysc/miniconda3/envs/python3.8-env/bin/python")
+# set(PYTHON_EXECUTABLE "/home/ysc/miniconda3/envs/python3.8-env/bin/python")
+set(PYTHON_EXECUTABLE "/home/hilmiros/miniconda3/envs/robotdog/bin/python")
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -160,6 +161,9 @@ add_executable(move_approach_node src/move_approach.cpp)
 # add_executable(test_Lite3MotionSDK_node src/test_Lite3MotionSDK.cpp ${SDK_SOURCES})
 add_executable(simpleCMD_pub_node src/simpleCMD_pub.cpp)
 add_executable(nav_setpoint_node src/nav_setpoint.cpp)
+add_executable(my_navigation_node src/my_navigation.cpp)
+add_executable(param_access_node src/param_access.cpp)
+add_executable(nav_setpoint_cancel_node src/nav_setpoint_cancel.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -175,6 +179,9 @@ add_dependencies(move_approach_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin
 # add_dependencies(test_Lite3MotionSDK_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(simpleCMD_pub_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(nav_setpoint_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(my_navigation_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(param_access_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(nav_setpoint_cancel_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(hello_world_cpp_node ${catkin_LIBRARIES})
@@ -183,6 +190,9 @@ target_link_libraries(move_approach_node ${catkin_LIBRARIES})
 # target_link_libraries(test_Lite3MotionSDK_node ${catkin_LIBRARIES} deeprobotics_legged_sdk_x86_64)
 target_link_libraries(simpleCMD_pub_node ${catkin_LIBRARIES})
 target_link_libraries(nav_setpoint_node ${catkin_LIBRARIES})
+target_link_libraries(my_navigation_node ${catkin_LIBRARIES})
+target_link_libraries(param_access_node ${catkin_LIBRARIES})
+target_link_libraries(nav_setpoint_cancel_node ${catkin_LIBRARIES})
 
 #############
 ## Install ##

@@ -18,17 +18,15 @@
 class MyRobot{
 public:
     MyRobot(){
-        ros::NodeHandle nh;
+        tracked_status_sub_ = nh_.subscribe("/tracked_status", 1, &MyRobot::trackstatusCallback, this);
+        center_sub_ = nh_.subscribe("/tracked_center", 1, &MyRobot::centerCallback, this);
+        depth_sub_ = nh_.subscribe("/tracked_depth", 1, &MyRobot::depthCallback, this);
+        odom_sub_ = nh_.subscribe("/leg_odom2", 1, &MyRobot::odomCallback, this);
+        search_status_sub_ = nh_.subscribe("/search_status", 1, &MyRobot::searchstatusCallback, this);
+        goto_status_sub_ = nh_.subscribe("/goto_status", 1, &MyRobot::gotostatusCallback, this);
 
-        tracked_status_sub_ = nh.subscribe("/tracked_status", 1, &MyRobot::trackstatusCallback, this);
-        center_sub_ = nh.subscribe("/tracked_center", 1, &MyRobot::centerCallback, this);
-        depth_sub_ = nh.subscribe("/tracked_depth", 1, &MyRobot::depthCallback, this);
-        odom_sub_ = nh.subscribe("/leg_odom2", 1, &MyRobot::odomCallback, this);
-        search_status_sub_ = nh.subscribe("/search_status", 1, &MyRobot::searchstatusCallback, this);
-        goto_status_sub_ = nh.subscribe("/goto_status", 1, &MyRobot::gotostatusCallback, this);
-
-        vel_pub_ = nh.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
-        simpleCMD_pub_ = nh.advertise<message_transformer::SimpleCMD>("/simple_cmd", 10);
+        vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
+        simpleCMD_pub_ = nh_.advertise<message_transformer::SimpleCMD>("/simple_cmd", 10);
 
         frame_width_ = 640;
         center_threshold_ = 40;
@@ -252,7 +250,7 @@ public:
         // ambil dari param
 
         // menuju lokasi
-        send_goal();   
+        // send_goal();   
     }
 
 private:
@@ -280,6 +278,7 @@ private:
         goto_ = msg->data;
     }
 
+    ros::NodeHandle nh_;
     ros::Subscriber tracked_status_sub_, center_sub_, depth_sub_;
     ros::Subscriber odom_sub_;
     ros::Subscriber search_status_sub_;
