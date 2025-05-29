@@ -1,0 +1,4 @@
+<launch>
+  <rosparam file="$(find my_command_quadruped)/config/goals.yaml" command="load" />
+  <node pkg="my_command_quadruped" type="my_navigation_node" name="my_navigation_node" output="screen"/>
+</launch>

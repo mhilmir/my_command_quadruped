@@ -10,6 +10,8 @@
 #include <actionlib/client/simple_action_client.h>
 #include <move_base_msgs/MoveBaseAction.h>
 #include <tf/transform_datatypes.h>
+#include <vector>
+#include <string>
 
 #define pi 3.14159265358979323846
 #define S_TWO_PI 6.283185307179586

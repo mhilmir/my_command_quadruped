@@ -15,7 +15,7 @@ tracker = None
 tracking = False
 detected_boxes = []
 clicked_point = None
-search = False
+# search = False
 color_image = None
 depth_image = None
 bridge = CvBridge()
@@ -52,14 +52,15 @@ def depth_callback(msg):
         rospy.logerr(f"Failed to convert depth image: {e}")
 
 def main():
-    global tracker, tracking, clicked_point, detected_boxes, search, color_image, depth_image, frame_count, yolo_enabled
+    global tracker, tracking, clicked_point, detected_boxes, color_image, depth_image, frame_count, yolo_enabled
+    # global search
 
     rospy.init_node('deteck_n_track_opt_node', anonymous=True)
 
     tracking_pub = rospy.Publisher('/tracked_status', Bool, queue_size=10)
     bb_center_pub = rospy.Publisher('/tracked_center', Point, queue_size=10)
     bb_depth_pub = rospy.Publisher('/tracked_depth', Int32, queue_size=10)
-    search_pub = rospy.Publisher('/search_status', Bool, queue_size=10)
+    # search_pub = rospy.Publisher('/search_status', Bool, queue_size=10)
 
     rospy.Subscriber('/camera/color/image_raw', Image, color_callback)
     rospy.Subscriber("/camera/aligned_depth_to_color/image_raw", Image, depth_callback)
@@ -140,15 +141,15 @@ def main():
         tracking_pub.publish(Bool(data=has_box))
         bb_center_pub.publish(bb_center_msg)
         bb_depth_pub.publish(bb_depth_msg)
-        search_pub.publish(Bool(data=search))
+        # search_pub.publish(Bool(data=search))
 
         # Display
         cv2.imshow("YOLO Detection + Tracking", color_image)
         key = cv2.waitKey(1) & 0xFF
         if key == ord('q'):
             break
-        elif key == ord('s'):
-            search = not search
+        # elif key == ord('s'):
+        #     search = not search
         elif key == ord('p'):
             tracking = False
             tracker = None
