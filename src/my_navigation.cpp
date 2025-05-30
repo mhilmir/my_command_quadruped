@@ -3,6 +3,7 @@
 #include <geometry_msgs/Point.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/Int32.h>
+#include <std_msgs/String.h>
 #include <message_transformer/SimpleCMD.h>
 #include <nav_msgs/Odometry.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -12,6 +13,7 @@
 #include <tf/transform_datatypes.h>
 #include <vector>
 #include <string>
+#include <map>
 
 #define pi 3.14159265358979323846
 #define S_TWO_PI 6.283185307179586
@@ -26,6 +28,7 @@ public:
         odom_sub_ = nh_.subscribe("/leg_odom2", 1, &MyRobot::odomCallback, this);
         search_status_sub_ = nh_.subscribe("/search_status", 1, &MyRobot::searchstatusCallback, this);
         goto_status_sub_ = nh_.subscribe("/goto_status", 1, &MyRobot::gotostatusCallback, this);
+        location_chosen_sub_ = nh_.subscribe("/location_chosen", 1, &MyRobot::locationchosenCallback, this);
 
         vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
         simpleCMD_pub_ = nh_.advertise<message_transformer::SimpleCMD>("/simple_cmd", 10);
@@ -63,37 +66,7 @@ public:
         vel_pub_.publish(vel);
         ros::Duration(0.5).sleep(); // small pause
     }
-    // fungsi move() untuk search object
-    void move(double linear_x, double linear_y, double angular_z, double duration, bool is_search){
-        geometry_msgs::Twist vel;
-        vel.linear.x = linear_x;
-        vel.linear.y = linear_y;
-        vel.linear.z = 0.0;
-        vel.angular.x = 0.0;
-        vel.angular.y = 0.0;
-        vel.angular.z = angular_z;
 
-        ros::Rate rate(10); // 10 Hz
-        int ticks = duration * 10; // number of ticks to publish
-
-        for (int i = 0; i < ticks; ++i){
-            if(tracked_ || !search_){
-                break;
-            }
-
-            vel_pub_.publish(vel);
-            ros::spinOnce();
-            rate.sleep();
-        }
-
-        // Stop after moving
-        vel.linear.x = 0.0;
-        vel.linear.y = 0.0;
-        vel.angular.z = 0.0;
-        vel_pub_.publish(vel);
-        ros::Duration(0.5).sleep(); // small pause
-    }
-    
     void simpleCMD_send(int cmd_code, int cmd_value, int type){
         message_transformer::SimpleCMD msg;
         msg.cmd_code = cmd_code;
@@ -103,6 +76,42 @@ public:
         simpleCMD_pub_.publish(msg);
         ROS_INFO("Published SimpleCMD: code=%d, value=%d, type=%d", msg.cmd_code, msg.cmd_value, msg.type);
         ros::Duration(0.5).sleep();  // small pause
+    }
+
+    std::map<std::string, std::vector<double>> loadWaypoints(const std::string& room) {
+        std::map<std::string, std::vector<double>> room_waypoints;
+
+        XmlRpc::XmlRpcValue room_data;
+        if (!nh_.getParam(room, room_data)) {
+            ROS_WARN("No waypoints found for room: %s", room.c_str());
+            return room_waypoints;
+        }
+
+        for (XmlRpc::XmlRpcValue::ValueStruct::const_iterator it = room_data.begin(); it != room_data.end(); ++it) {
+            std::string wp = it->first;
+            XmlRpc::XmlRpcValue wp_data = it->second;
+
+            std::vector<double> pose;
+            for (int i = 0; i < wp_data.size(); ++i) {
+                pose.push_back(static_cast<double>(wp_data[i]));
+            }
+
+            std::string wp_name = room + "_" + wp;
+            room_waypoints[wp_name] = pose;
+
+            // ROS_INFO("%s: x=%f, y=%f, theta=%f", wp_name.c_str(), pose[0], pose[1], pose[2]);
+        }
+
+        return room_waypoints;
+    }
+
+    void displayWaypointsInRoom(const std::map<std::string, std::vector<double>>& room_waypoints) {
+        for (const auto& pair : room_waypoints) {
+            const std::string& wp_name = pair.first;
+            const std::vector<double>& pose = pair.second;
+
+            ROS_INFO("%s: x=%f, y=%f, theta=%f", wp_name.c_str(), pose[0], pose[1], pose[2]);
+        }
     }
 
     void approach_sit(){
@@ -240,8 +249,9 @@ public:
 
     void goto_location(){
         ros::Rate rate(10);  // 10Hz
+
+        ROS_INFO("Waiting for location input...");
         while (ros::ok() && !goto_){
-            ROS_INFO("Waiting for location input...");
 
             ros::spinOnce();
             rate.sleep();
@@ -250,6 +260,8 @@ public:
         ROS_INFO("Location target determined !!");
 
         // ambil dari param
+        std::map<std::string, std::vector<double>> room_waypoints = loadWaypoints(location_chosen_);
+        displayWaypointsInRoom(room_waypoints);
 
         // menuju lokasi
         // send_goal();   
@@ -280,10 +292,15 @@ private:
         goto_ = msg->data;
     }
 
+    void locationchosenCallback(const std_msgs::String::ConstPtr& msg){
+        location_chosen_ = msg->data;
+    }
+
     ros::NodeHandle nh_;
     ros::Subscriber tracked_status_sub_, center_sub_, depth_sub_;
     ros::Subscriber odom_sub_;
     ros::Subscriber search_status_sub_;
+    ros::Subscriber location_chosen_sub_;
     ros::Subscriber goto_status_sub_;
     ros::Publisher vel_pub_;
     ros::Publisher simpleCMD_pub_;
@@ -294,6 +311,7 @@ private:
     bool goto_ = false;
     int depth_ = 0;
     bool tracked_ = false;
+    std::string location_chosen_;
 
     int frame_width_;
     int center_threshold_;
@@ -309,9 +327,9 @@ int main(int argc, char** argv){
     MyRobot my_robot;
 
     my_robot.goto_location();
-    my_robot.search();
-    my_robot.approach();
-    my_robot.approach_sit();
+    // my_robot.search();
+    // my_robot.approach();
+    // my_robot.approach_sit();
     
     return 0;
 }

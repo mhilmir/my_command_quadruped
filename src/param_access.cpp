@@ -3,8 +3,8 @@
 #include <string>
 #include <map>
 
-std::map<std::string, std::vector<std::vector<double>>> loadWaypoints(ros::NodeHandle& nh, const std::string& room) {
-    std::map<std::string, std::vector<std::vector<double>>> room_waypoints;
+std::map<std::string, std::vector<double>> loadWaypoints(ros::NodeHandle& nh, const std::string& room) {
+    std::map<std::string, std::vector<double>> room_waypoints;
 
     XmlRpc::XmlRpcValue room_data;
     if (!nh.getParam(room, room_data)) {
@@ -13,7 +13,7 @@ std::map<std::string, std::vector<std::vector<double>>> loadWaypoints(ros::NodeH
     }
 
     for (XmlRpc::XmlRpcValue::ValueStruct::const_iterator it = room_data.begin(); it != room_data.end(); ++it) {
-        std::string wp_name = it->first;
+        std::string wp = it->first;
         XmlRpc::XmlRpcValue wp_data = it->second;
 
         std::vector<double> pose;
@@ -21,12 +21,22 @@ std::map<std::string, std::vector<std::vector<double>>> loadWaypoints(ros::NodeH
             pose.push_back(static_cast<double>(wp_data[i]));
         }
 
-        room_waypoints[room].push_back(pose);
+        std::string wp_name = room + "_" + wp;
+        room_waypoints[wp_name] = pose;
 
-        ROS_INFO("%s/%s: x=%f, y=%f, theta=%f", room.c_str(), wp_name.c_str(), pose[0], pose[1], pose[2]);
+        // ROS_INFO("%s: x=%f, y=%f, theta=%f", wp_name.c_str(), pose[0], pose[1], pose[2]);
     }
 
     return room_waypoints;
+}
+
+void displayWaypointsInRoom(const std::map<std::string, std::vector<double>>& room_waypoints) {
+    for (const auto& pair : room_waypoints) {
+        const std::string& wp_name = pair.first;
+        const std::vector<double>& pose = pair.second;
+
+        ROS_INFO("%s: x=%f, y=%f, theta=%f", wp_name.c_str(), pose[0], pose[1], pose[2]);
+    }
 }
 
 int main(int argc, char** argv) {
@@ -36,9 +46,9 @@ int main(int argc, char** argv) {
     ROS_INFO("TES");
 
     // Ambil semua waypoint dan simpan ke variabel
-    auto wp_901 = loadWaypoints(nh, "Ruangan_901");
-    auto wp_903 = loadWaypoints(nh, "Ruangan_903");
-    auto wp_lift = loadWaypoints(nh, "Lift_Barat");
+    auto room901_waypoints = loadWaypoints(nh, "Ruangan_901");
+
+    displayWaypointsInRoom(room901_waypoints);
 
     ros::spin();
     return 0;
