@@ -21,7 +21,7 @@
 
 class MyRobot{
 public:
-    MyRobot(){
+    MyRobot() : client_("move_base", true) {
         tracked_status_sub_ = nh_.subscribe("/tracked_status", 1, &MyRobot::trackstatusCallback, this);
         center_sub_ = nh_.subscribe("/tracked_center", 1, &MyRobot::centerCallback, this);
         depth_sub_ = nh_.subscribe("/tracked_depth", 1, &MyRobot::depthCallback, this);
@@ -32,6 +32,10 @@ public:
 
         vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
         simpleCMD_pub_ = nh_.advertise<message_transformer::SimpleCMD>("/simple_cmd", 10);
+
+        // ROS_INFO("Waiting for action server to start...");
+        // client_->waitForServer();  // Optional: wait in constructor
+        // ROS_INFO("Action server started.");
 
         frame_width_ = 640;
         center_threshold_ = 40;
@@ -114,6 +118,50 @@ public:
         }
     }
 
+    // theta 0 itu depan robot
+    void send_goal(double x, double y, double theta, bool search_mode=false) {
+
+        ROS_INFO("Waiting for the move_base action server...");
+        client_.waitForServer();
+
+        move_base_msgs::MoveBaseGoal goal;
+        goal.target_pose.header.frame_id = "map";
+        goal.target_pose.header.stamp = ros::Time::now();
+        goal.target_pose.pose.position.x = x;
+        goal.target_pose.pose.position.y = y;
+
+        tf::Quaternion quat = tf::createQuaternionFromYaw(theta);
+        goal.target_pose.pose.orientation.x = quat.x();
+        goal.target_pose.pose.orientation.y = quat.y();
+        goal.target_pose.pose.orientation.z = quat.z();
+        goal.target_pose.pose.orientation.w = quat.w();
+
+        ROS_INFO("Sending goal: x=%.2f, y=%.2f, theta=%.2f", x, y, theta);
+        client_.sendGoal(goal);
+
+        ros::Rate rate(10);  // 10 Hz loop rate
+        while (ros::ok() && !client_.getState().isDone()) {
+            ros::spinOnce();
+            
+            if (search_mode && !search_ && 
+                (client_.getState() == actionlib::SimpleClientGoalState::ACTIVE ||
+                client_.getState() == actionlib::SimpleClientGoalState::PENDING)) {
+                    ROS_WARN("Goal canceled due to external signal.");
+                    client_.cancelGoal();
+                    break;
+            }
+            rate.sleep();
+        }
+
+        if (search_mode && !search_) {
+            ROS_INFO("Goal was canceled.");
+        } else if (client_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+            ROS_INFO("Goal reached successfully.");
+        } else {
+            ROS_WARN("Goal failed or interrupted. State: %s", client_.getState().toString().c_str());
+        }
+    }
+
     void approach_sit(){
         double lin_speed = 0.2;  // m/s
         double ang_speed = 0.30;  // rad/s
@@ -180,32 +228,23 @@ public:
 
     void search(){
         ros::Rate rate(10);  // 10 Hz
+
+        // ambil dari param
+        std::map<std::string, std::vector<double>> search_waypoints = loadWaypoints(location_chosen_);
+        // displayWaypointsInRoom(search_waypoints);
+
         while(ros::ok()){
             if(search_ && !tracked_){
                 ROS_INFO("Search the area until object detected");
 
-                // // rangkaian move() (belum ada NAV)
-                // double lin_speed = 0.2;  // m/s
-                // double ang_speed = 0.30;  // rad/s
-                // double linx_distance = 2.5;  // meter
-                // move(lin_speed, 0, 0, linx_distance / lin_speed, true);  // forward 2.5 m
-                // move(0, 0, -ang_speed, (pi) / ang_speed, true);  // yaw 180
-                // move(0, 0, ang_speed, (pi/2) / ang_speed, true);  // yaw 90 cc
+                for (const auto& pair : room_waypoints) {
+                    const std::string& wp_name = pair.first;
+                    const std::vector<double>& pose = pair.second;
 
-                // move(lin_speed, 0, 0, linx_distance / lin_speed, true);  // repeat
-                // move(0, 0, -ang_speed, (pi) / ang_speed, true);
-                // move(0, 0, ang_speed, (pi/2) / ang_speed, true);
-
-                // move(lin_speed, 0, 0, linx_distance / lin_speed, true);  // repeat
-                // move(0, 0, -ang_speed, (pi) / ang_speed, true);
-                // move(0, 0, ang_speed, (pi/2) / ang_speed, true);
-
-                // move(lin_speed, 0, 0, linx_distance / lin_speed, true);  // repeat
-                // move(0, 0, -ang_speed, (pi) / ang_speed, true);
-                // move(0, 0, ang_speed, (pi/2) / ang_speed, true);
-
-                // bikin disini
-
+                    ROS_INFO("Go To %s\n  x=%f, y=%f, theta=%f\n", wp_name.c_str(), pose[0], pose[1], pose[2]);
+                    send_goal(pose[0], pose[1], pose[2], true);
+                    if(!search_) break;
+                }
                 
             }
 
@@ -215,35 +254,6 @@ public:
 
             ros::spinOnce();
             rate.sleep();
-        }
-    }
-
-    // theta 0 itu depan robot
-    void send_goal(double x, double y, double theta) {
-        actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> client("move_base", true);
-        ROS_INFO("Waiting for the move_base action server...");
-        client.waitForServer();
-
-        move_base_msgs::MoveBaseGoal goal;
-        goal.target_pose.header.frame_id = "map";
-        goal.target_pose.header.stamp = ros::Time::now();
-        goal.target_pose.pose.position.x = x;
-        goal.target_pose.pose.position.y = y;
-
-        tf::Quaternion quat = tf::createQuaternionFromYaw(theta);
-        goal.target_pose.pose.orientation.x = quat.x();
-        goal.target_pose.pose.orientation.y = quat.y();
-        goal.target_pose.pose.orientation.z = quat.z();
-        goal.target_pose.pose.orientation.w = quat.w();
-
-        ROS_INFO("Sending goal : x=%f, y=%f, theta=%f", x, y, theta);
-        client.sendGoal(goal);
-        client.waitForResult();
-
-        if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
-            ROS_INFO("Goal reached successfully.");
-        } else {
-            ROS_WARN("Failed to reach goal.");
         }
     }
 
@@ -261,10 +271,16 @@ public:
 
         // ambil dari param
         std::map<std::string, std::vector<double>> room_waypoints = loadWaypoints(location_chosen_);
-        displayWaypointsInRoom(room_waypoints);
+        // displayWaypointsInRoom(room_waypoints);
 
         // menuju lokasi
-        // send_goal();   
+        for (const auto& pair : room_waypoints) {
+            const std::string& wp_name = pair.first;
+            const std::vector<double>& pose = pair.second;
+
+            ROS_INFO("Go To %s\n  x=%f, y=%f, theta=%f\n", wp_name.c_str(), pose[0], pose[1], pose[2]);
+            send_goal(pose[0], pose[1], pose[2]);
+        }
     }
 
 private:
@@ -305,6 +321,8 @@ private:
     ros::Publisher vel_pub_;
     ros::Publisher simpleCMD_pub_;
 
+    actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> client_;
+
     geometry_msgs::Point center_;
     nav_msgs::Odometry odom_;
     bool search_ = false;
@@ -327,9 +345,9 @@ int main(int argc, char** argv){
     MyRobot my_robot;
 
     my_robot.goto_location();
-    // my_robot.search();
-    // my_robot.approach();
-    // my_robot.approach_sit();
+    my_robot.search();
+    my_robot.approach();
+    my_robot.approach_sit();
     
     return 0;
 }
