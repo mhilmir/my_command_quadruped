@@ -230,14 +230,15 @@ public:
         ros::Rate rate(10);  // 10 Hz
 
         // ambil dari param
-        std::map<std::string, std::vector<double>> search_waypoints = loadWaypoints(location_chosen_);
+        std::string search_points_data = location_chosen_ + "_spoints";
+        std::map<std::string, std::vector<double>> search_waypoints = loadWaypoints(search_points_data);
         // displayWaypointsInRoom(search_waypoints);
 
         while(ros::ok()){
             if(search_ && !tracked_){
                 ROS_INFO("Search the area until object detected");
 
-                for (const auto& pair : room_waypoints) {
+                for (const auto& pair : search_waypoints) {
                     const std::string& wp_name = pair.first;
                     const std::vector<double>& pose = pair.second;
 
@@ -270,11 +271,11 @@ public:
         ROS_INFO("Location target determined !!");
 
         // ambil dari param
-        std::map<std::string, std::vector<double>> room_waypoints = loadWaypoints(location_chosen_);
-        // displayWaypointsInRoom(room_waypoints);
+        std::map<std::string, std::vector<double>> goal_waypoints = loadWaypoints(location_chosen_);
+        // displayWaypointsInRoom(goal_waypoints);
 
         // menuju lokasi
-        for (const auto& pair : room_waypoints) {
+        for (const auto& pair : goal_waypoints) {
             const std::string& wp_name = pair.first;
             const std::vector<double>& pose = pair.second;
 
