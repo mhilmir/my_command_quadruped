@@ -47,6 +47,8 @@ public:
     }
 
     void move(double linear_x, double linear_y, double angular_z, double duration){
+        ROS_INFO("Robot move for %f seconds, with speed:\n  lin_x:%f lin_y:%f ang_z:%f", duration, linear_x, linear_y, angular_z);
+
         geometry_msgs::Twist vel;
         vel.linear.x = linear_x;
         vel.linear.y = linear_y;
@@ -123,6 +125,7 @@ public:
 
         ROS_INFO("Waiting for the move_base action server...");
         client_.waitForServer();
+        ROS_INFO("Got it");
 
         move_base_msgs::MoveBaseGoal goal;
         goal.target_pose.header.frame_id = "map";
@@ -172,14 +175,13 @@ public:
         // move(-lin_speed, 0, 0, linx_distance/lin_speed);  // move backward little bit
         move(0, lin_speed, 0, liny_distance/lin_speed);  // going left little bit
         ros::Duration(2).sleep();
-        simpleCMD_send(0x21010202, 0, 0);  // robot sit/stand
 
         ROS_INFO("Finish, now Sit down");
+        simpleCMD_send(0x21010202, 0, 0);  // robot sit/stand
     }
 
     void approach(){
         ros::Rate rate(10);  // 10 Hz
-        ROS_INFO("Object decided, try to approach the object");
         while (ros::ok()){
             geometry_msgs::Twist vel;
 
@@ -210,7 +212,7 @@ public:
                         aligned_time_ = ros::Time::now();
                         aligned_ = true;
                     } else if((ros::Time::now() - aligned_time_).toSec() >= 4.0){
-                        ROS_INFO("Robot is going to Approach..");
+                        ROS_INFO("Robot is going to sit next to the object");
                         break;
                     }
                 } else{
@@ -232,7 +234,8 @@ public:
         // ambil dari param
         std::string search_points_data = location_chosen_ + "_spoints";
         std::map<std::string, std::vector<double>> search_waypoints = loadWaypoints(search_points_data);
-        // displayWaypointsInRoom(search_waypoints);
+        displayWaypointsInRoom(search_waypoints);
+        ROS_INFO("Search points for current location is loaded. Ready to search..");
 
         while(ros::ok()){
             if(search_ && !tracked_){
@@ -242,7 +245,7 @@ public:
                     const std::string& wp_name = pair.first;
                     const std::vector<double>& pose = pair.second;
 
-                    ROS_INFO("Go To %s\n  x=%f, y=%f, theta=%f\n", wp_name.c_str(), pose[0], pose[1], pose[2]);
+                    ROS_INFO("[Searching]... Go To %s", wp_name.c_str());
                     send_goal(pose[0], pose[1], pose[2], true);
                     if(!search_) break;
                 }
@@ -250,6 +253,7 @@ public:
             }
 
             if(tracked_ && !search_){
+                ROS_INFO("Object determined. Start to track and approach it");
                 break;
             }
 
@@ -272,14 +276,15 @@ public:
 
         // ambil dari param
         std::map<std::string, std::vector<double>> goal_waypoints = loadWaypoints(location_chosen_);
-        // displayWaypointsInRoom(goal_waypoints);
+        displayWaypointsInRoom(goal_waypoints);
+        ROS_INFO("Waypoints Loaded for the respective location");
 
         // menuju lokasi
         for (const auto& pair : goal_waypoints) {
             const std::string& wp_name = pair.first;
             const std::vector<double>& pose = pair.second;
 
-            ROS_INFO("Go To %s\n  x=%f, y=%f, theta=%f\n", wp_name.c_str(), pose[0], pose[1], pose[2]);
+            ROS_INFO("[Navigating]... Go To %s", wp_name.c_str());
             send_goal(pose[0], pose[1], pose[2]);
         }
     }
