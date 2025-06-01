@@ -134,7 +134,7 @@ public:
                 int distance_error = desired_distance_ - depth_;
                 if (std::abs(distance_error) > distance_threshold_){
                     vel.linear.x = -0.00025 * distance_error;  // Move forward/backward
-                    ROS_INFO("distance error: %f", distance_error);
+                    ROS_INFO("distance error: %d", distance_error);
                 } else{
                     // ROS_INFO("distance ok");
                 }

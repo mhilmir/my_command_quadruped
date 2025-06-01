@@ -25,7 +25,7 @@ public:
         tracked_status_sub_ = nh_.subscribe("/tracked_status", 1, &MyRobot::trackstatusCallback, this);
         center_sub_ = nh_.subscribe("/tracked_center", 1, &MyRobot::centerCallback, this);
         depth_sub_ = nh_.subscribe("/tracked_depth", 1, &MyRobot::depthCallback, this);
-        odom_sub_ = nh_.subscribe("/leg_odom2", 1, &MyRobot::odomCallback, this);
+        // odom_sub_ = nh_.subscribe("/leg_odom2", 1, &MyRobot::odomCallback, this);
         search_status_sub_ = nh_.subscribe("/search_status", 1, &MyRobot::searchstatusCallback, this);
         goto_status_sub_ = nh_.subscribe("/goto_status", 1, &MyRobot::gotostatusCallback, this);
         location_chosen_sub_ = nh_.subscribe("/location_chosen", 1, &MyRobot::locationchosenCallback, this);
@@ -123,6 +123,9 @@ public:
     // theta 0 itu depan robot
     void send_goal(double x, double y, double theta, bool search_mode=false) {
 
+        if(search_mode && !search_)
+            return;
+
         ROS_INFO("Waiting for the move_base action server...");
         client_.waitForServer();
         ROS_INFO("Got it");
@@ -186,9 +189,12 @@ public:
             geometry_msgs::Twist vel;
 
             if (tracked_){
+                // ROS_INFO("Center_.x:%f, depth_:%d", center_.x, depth_);
+
                 double x_error = center_.x - (frame_width_ / 2.0);
                 if (std::abs(x_error) > center_threshold_){
-                    vel.angular.z = -0.002 * x_error;  // Turn towards the object
+                    vel.angular.z = -0.001 * x_error;  // Turn towards the object
+                    ROS_INFO("vel ang z : %f", vel.angular.z);
                     ROS_INFO("x error: %f", x_error);
                 } else{
                     // ROS_INFO("yaw aligned");
@@ -196,8 +202,9 @@ public:
                 
                 int distance_error = desired_distance_ - depth_;
                 if (std::abs(distance_error) > distance_threshold_){
-                    vel.linear.x = -0.00025 * distance_error;  // Move forward/backward
-                    ROS_INFO("distance error: %f", distance_error);
+                    vel.linear.x = -0.000125 * distance_error;  // Move forward/backward
+                    ROS_INFO("vel lin x : %f", vel.linear.x);
+                    ROS_INFO("distance error: %d", distance_error);
                 } else{
                     // ROS_INFO("distance ok");
                 }
@@ -246,8 +253,10 @@ public:
                     const std::vector<double>& pose = pair.second;
 
                     ROS_INFO("[Searching]... Go To %s", wp_name.c_str());
-                    send_goal(pose[0], pose[1], pose[2], true);
-                    if(!search_) break;
+                    // send_goal(pose[0], pose[1], pose[2], true);
+                    ros::spinOnce();
+                    rate.sleep();
+                    if(!search_ || tracked_) break;
                 }
                 
             }
@@ -285,8 +294,9 @@ public:
             const std::vector<double>& pose = pair.second;
 
             ROS_INFO("[Navigating]... Go To %s", wp_name.c_str());
-            send_goal(pose[0], pose[1], pose[2]);
+            // send_goal(pose[0], pose[1], pose[2]);
         }
+        ROS_INFO("Robot now in %s", location_chosen_.c_str());
     }
 
 private:
@@ -300,11 +310,12 @@ private:
 
     void depthCallback(const std_msgs::Int32::ConstPtr& msg){
         depth_ = msg->data;
+        // ROS_INFO("DEPTH FROM CB : %d", depth_);
     }
 
-    void odomCallback(const nav_msgs::Odometry::ConstPtr& msg){
-        odom_ = *msg;
-    }
+    // void odomCallback(const nav_msgs::Odometry::ConstPtr& msg){
+    //     odom_ = *msg;
+    // }
 
     void searchstatusCallback(const std_msgs::Bool::ConstPtr& msg){
         search_ = msg->data;
@@ -320,7 +331,7 @@ private:
 
     ros::NodeHandle nh_;
     ros::Subscriber tracked_status_sub_, center_sub_, depth_sub_;
-    ros::Subscriber odom_sub_;
+    // ros::Subscriber odom_sub_;
     ros::Subscriber search_status_sub_;
     ros::Subscriber location_chosen_sub_;
     ros::Subscriber goto_status_sub_;
@@ -330,7 +341,7 @@ private:
     actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> client_;
 
     geometry_msgs::Point center_;
-    nav_msgs::Odometry odom_;
+    // nav_msgs::Odometry odom_;
     bool search_ = false;
     bool goto_ = false;
     int depth_ = 0;

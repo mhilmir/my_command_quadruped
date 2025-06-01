@@ -21,8 +21,12 @@ void searchstatusCallback(const std_msgs::Bool::ConstPtr& msg) {
 
 void send_goal(double x, double y, double theta, bool search_mode=false) {
 
+    if(search_mode && !search_)
+        return;
+
     ROS_INFO("Waiting for the move_base action server...");
     client.waitForServer();
+    ROS_INFO("Got it");
 
     move_base_msgs::MoveBaseGoal goal;
     goal.target_pose.header.frame_id = "map";

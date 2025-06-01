@@ -141,7 +141,7 @@ def main():
                 cv2.rectangle(color_image, (x, y), (x + w, y + h), (0, 255, 0), 2)
                 cv2.putText(color_image, "Tracking", (x, y - 10),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-                rospy.loginfo(f"Depth at center: {depth_value} mm")
+                rospy.loginfo(f"Closest Depth data in bb: {depth_value} mm")
             else:
                 cv2.putText(color_image, "Lost Tracking", (50, 80),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)

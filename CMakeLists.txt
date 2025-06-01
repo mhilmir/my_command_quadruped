@@ -155,7 +155,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(hello_world_cpp_node src/helloworld.cpp)
+add_executable(hello_world_cpp_node src/helloworld.cpp)
 add_executable(move_square_node src/move_square.cpp)
 add_executable(move_approach_node src/move_approach.cpp)
 # add_executable(test_Lite3MotionSDK_node src/test_Lite3MotionSDK.cpp ${SDK_SOURCES})
@@ -173,7 +173,7 @@ add_executable(nav_setpoint_cancel_node src/nav_setpoint_cancel.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(hello_world_cpp_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(hello_world_cpp_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(move_square_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(move_approach_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 # add_dependencies(test_Lite3MotionSDK_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -184,7 +184,7 @@ add_dependencies(param_access_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_
 add_dependencies(nav_setpoint_cancel_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(hello_world_cpp_node ${catkin_LIBRARIES})
+target_link_libraries(hello_world_cpp_node ${catkin_LIBRARIES})
 target_link_libraries(move_square_node ${catkin_LIBRARIES})
 target_link_libraries(move_approach_node ${catkin_LIBRARIES})
 # target_link_libraries(test_Lite3MotionSDK_node ${catkin_LIBRARIES} deeprobotics_legged_sdk_x86_64)
