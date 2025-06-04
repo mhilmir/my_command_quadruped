@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 
-import rospy
 import numpy as np
 import cv2
 from ultralytics import YOLO
+import torch
+### Always import torch and ultralytics before any ROS-related imports
+import rospy
 from std_msgs.msg import Bool, Int32, Empty
 from geometry_msgs.msg import Point
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
-import torch
 
 model = YOLO('yolov8n.pt')  # Use absolute path if needed
 tracker = None
