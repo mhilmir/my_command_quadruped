@@ -74,7 +74,7 @@ def main():
     rospy.Subscriber('/camera/color/image_raw', Image, color_callback)
     rospy.Subscriber("/camera/aligned_depth_to_color/image_raw", Image, depth_callback)
     rospy.Subscriber("/camera/quadruped/mouse_click", Point, mouse_callback)
-    rospy.Subscriber('/yolo_enabled', Bool, yolo_enabled_callback)
+    rospy.Subscriber('/yolo_enabled_quadruped', Bool, yolo_enabled_callback)
     rospy.Subscriber('/cancel_tracking', Empty, cancel_tracking_callback)
 
     if torch.cuda.is_available():
