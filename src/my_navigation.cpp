@@ -171,13 +171,22 @@ public:
     void approach_sit(){
         double lin_speed = 0.2;  // m/s
         double ang_speed = 0.30;  // rad/s
-        // double linx_distance = 0.15;  // meter
-        double liny_distance = 0.75;  // meter
-        double ang_distance = pi/2;  // rad
+        double linx_distance, liny_distance, ang_distance;
+
+        // Method A
+        liny_distance = 0.75;  // meter
+        ang_distance = pi/2;  // rad
         move(0, 0, -ang_speed, ang_distance/ang_speed);  // 90 degrees turn right
-        // move(-lin_speed, 0, 0, linx_distance/lin_speed);  // move backward little bit
         move(0, lin_speed, 0, liny_distance/lin_speed);  // going left little bit
         ros::Duration(2).sleep();
+        
+        // // Method B
+        // linx_distance = 0.60;  // meter
+        // liny_distance = 0.15;  // meter
+        // ang_distance = pi/2;  // rad
+        // move(lin_speed, 0, 0, linx_distance/lin_speed);  // move forward
+        // move(0, 0, -ang_speed, ang_distance/ang_speed);  // 90 degrees turn right
+        // move(0, lin_speed, 0, liny_distance/lin_speed);  // move left
 
         ROS_INFO("Finish, now Sit down");
         simpleCMD_send(0x21010202, 0, 0);  // robot sit/stand
