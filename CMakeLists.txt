@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.0.2)
 project(my_command_quadruped)
 
 # set(PYTHON_EXECUTABLE "/home/ysc/miniconda3/envs/python3.8-env/bin/python")
-set(PYTHON_EXECUTABLE "/home/hilmiros/miniconda3/envs/robotdog/bin/python")
-# set(PYTHON_EXECUTABLE "/home/ysc/miniconda3/envs/robotdog/bin/python")
+# set(PYTHON_EXECUTABLE "/home/hilmiros/miniconda3/envs/robotdog/bin/python")
+set(PYTHON_EXECUTABLE "/home/ysc/miniconda3/envs/robotdog/bin/python")
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
