@@ -308,6 +308,13 @@ public:
         ROS_INFO("Robot now in %s", location_chosen_.c_str());
     }
 
+    void spin(){
+        goto_location();
+        search();
+        approach();
+        approach_sit();
+    }
+
 private:
     void trackstatusCallback(const std_msgs::Bool::ConstPtr& msg){
         tracked_ = msg->data;
@@ -369,11 +376,7 @@ private:
 int main(int argc, char** argv){
     ros::init(argc, argv, "semi_autonomous_control_node");
     MyRobot my_robot;
+    my_robot.spin();
 
-    my_robot.goto_location();
-    my_robot.search();
-    my_robot.approach();
-    my_robot.approach_sit();
-    
     return 0;
 }
