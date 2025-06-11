@@ -81,7 +81,7 @@ public:
 
         simpleCMD_pub_.publish(msg);
         ROS_INFO("Published SimpleCMD: code=%d, value=%d, type=%d", msg.cmd_code, msg.cmd_value, msg.type);
-        ros::Duration(0.5).sleep();  // small pause
+        ros::Duration(7.0).sleep();  // small pause
     }
 
     std::map<std::string, std::vector<double>> loadWaypoints(const std::string& room) {
@@ -313,6 +313,17 @@ public:
         search();
         approach();
         approach_sit();
+
+        // wait for the arm robot grasp
+        
+        simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
+        goto_initial_room();
+        simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
+
+        // wait for the arm robot place the object
+        
+        simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
+        
     }
 
 private:
