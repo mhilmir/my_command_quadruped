@@ -29,21 +29,25 @@ public:
         search_status_sub_ = nh_.subscribe("/search_status", 1, &MyRobot::searchstatusCallback, this);
         goto_status_sub_ = nh_.subscribe("/goto_status", 1, &MyRobot::gotostatusCallback, this);
         location_chosen_sub_ = nh_.subscribe("/location_chosen", 1, &MyRobot::locationchosenCallback, this);
+        navman_sub_ = nh_.subscribe("/navman_comm", 1, &MyRobot::navmanCallback, this);
 
         vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
         simpleCMD_pub_ = nh_.advertise<message_transformer::SimpleCMD>("/simple_cmd", 10);
-
+        navman_pub_ = nh_.advertise<std_msgs::Bool>("/navman_comm", 1);
+        
         // ROS_INFO("Waiting for action server to start...");
         // client_->waitForServer();  // Optional: wait in constructor
         // ROS_INFO("Action server started.");
-
+        
         frame_width_ = 640;
         center_threshold_ = 40;
         desired_distance_ = 650;      // mm
         distance_threshold_ = 150;
-
+        
         aligned_time_ = ros::Time(0);
         aligned_ = false;
+
+        active_ = false;
     }
 
     void move(double linear_x, double linear_y, double angular_z, double duration){
@@ -289,8 +293,8 @@ public:
             ros::spinOnce();
             rate.sleep();
         }
-
         ROS_INFO("Location target determined !!");
+        initial_room_ = location_chosen_;
 
         // ambil dari param
         std::map<std::string, std::vector<double>> goal_waypoints = loadWaypoints(location_chosen_);
@@ -308,22 +312,71 @@ public:
         ROS_INFO("Robot now in %s", location_chosen_.c_str());
     }
 
+    void goto_initial_room(){
+        ros::Rate rate(10);  // 10Hz
+
+        // ambil dari param
+        std::map<std::string, std::vector<double>> goal_waypoints = loadWaypoints(initial_room_);
+        displayWaypointsInRoom(goal_waypoints);
+        ROS_INFO("Waypoints Loaded for the respective location");
+
+        // menuju lokasi
+        for (const auto& pair : goal_waypoints) {
+            const std::string& wp_name = pair.first;
+            const std::vector<double>& pose = pair.second;
+
+            ROS_INFO("[Navigating]... Go To %s", wp_name.c_str());
+            // send_goal(pose[0], pose[1], pose[2]);
+        }
+        ROS_INFO("Robot now in %s", initial_room_.c_str());
+
+    }
+
     void spin(){
-        goto_location();
-        search();
-        approach();
-        approach_sit();
+        ros::Rate rate(10);
+        while(ros::ok()){
+            
+            goto_location();
+            search();
+            approach();
+            approach_sit();
+            active_ = false;
+            navman_msg_.data = true;
+            navman_pub_.publish(navman_msg_);
+            ROS_INFO("handoff to arm\n");
 
-        // wait for the arm robot grasp
-        
-        simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
-        goto_initial_room();
-        simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
+            // wait for the arm robot grasp
+            ROS_INFO("wait for the arm finish the grasping job");
+            while(ros::ok() && (active_==false)){
+                ROS_INFO("...");
+                ros::spinOnce();
+                rate.sleep();
+            }
+            ROS_INFO("arm has been finished the grasping job\n");
+            
+            ros::Duration(2).sleep();
+            simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
+            goto_initial_room();
+            ros::Duration(2).sleep();
+            simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
+            active_ = false;
+            navman_msg_.data = true;
+            navman_pub_.publish(navman_msg_);
+            ROS_INFO("handoff to arm\n");
 
-        // wait for the arm robot place the object
-        
-        simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
-        
+            // wait for the arm robot place the object
+            ROS_INFO("wait for the arm finish the placement job");
+            while(ros::ok() && (active_==false)){
+                ROS_INFO("...");
+                ros::spinOnce();
+                rate.sleep();
+            }
+            ROS_INFO("arm has been finished the placement job\n");
+            
+            ros::Duration(2).sleep();
+            simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
+        }
+            
     }
 
 private:
@@ -356,14 +409,25 @@ private:
         location_chosen_ = msg->data;
     }
 
+    void navmanCallback(const std_msgs::Bool::ConstPtr& msg)
+    {
+        active_ = !(msg->data);
+    }
+
     ros::NodeHandle nh_;
     ros::Subscriber tracked_status_sub_, center_sub_, depth_sub_;
     // ros::Subscriber odom_sub_;
     ros::Subscriber search_status_sub_;
     ros::Subscriber location_chosen_sub_;
     ros::Subscriber goto_status_sub_;
+    ros::Subscriber navman_sub_;
     ros::Publisher vel_pub_;
     ros::Publisher simpleCMD_pub_;
+    ros::Publisher navman_pub_;
+
+    std_msgs::Bool navman_msg_; 
+    bool active_;  // indicates whether this node should run navigation or wait for manipulation task
+    std::string initial_room_;
 
     actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> client_;
 
