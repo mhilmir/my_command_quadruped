@@ -44,8 +44,8 @@ public:
         desired_distance_ = 650;      // mm
         distance_threshold_ = 150;
         
-        aligned_time_ = ros::Time(0);
-        aligned_ = false;
+        // aligned_time_ = ros::Time(0);
+        // aligned_ = false;
 
         active_ = false;
     }
@@ -198,6 +198,8 @@ public:
 
     void approach(){
         ros::Rate rate(10);  // 10 Hz
+        aligned_time_ = ros::Time(0);
+        aligned_ = false;
         while (ros::ok()){
             geometry_msgs::Twist vel;
 
