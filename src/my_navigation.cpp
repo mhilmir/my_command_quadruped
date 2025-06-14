@@ -348,7 +348,7 @@ public:
             // wait for the arm robot grasp
             ROS_INFO("wait for the arm finish the grasping job");
             while(ros::ok() && (active_==false)){
-                ROS_INFO("...");
+                // ROS_INFO("...");
                 ros::spinOnce();
                 rate.sleep();
             }
@@ -367,7 +367,7 @@ public:
             // wait for the arm robot place the object
             ROS_INFO("wait for the arm finish the placement job");
             while(ros::ok() && (active_==false)){
-                ROS_INFO("...");
+                // ROS_INFO("...");
                 ros::spinOnce();
                 rate.sleep();
             }
