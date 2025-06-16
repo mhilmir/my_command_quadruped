@@ -173,15 +173,22 @@ public:
     }
 
     void approach_sit(){
+        ROS_INFO("ROBOT IS GOING TO SIT NEXT TO THE OBJECT");
         double lin_speed = 0.2;  // m/s
         double ang_speed = 0.30;  // rad/s
         double linx_distance, liny_distance, ang_distance;
 
-        // Method A
+        // Method A kiri
+        // liny_distance = 0.75;  // meter
+        // ang_distance = pi/2;  // rad
+        // move(0, 0, -ang_speed, ang_distance/ang_speed);  // 90 degrees turn right
+        // move(0, lin_speed, 0, liny_distance/lin_speed);  // going left little bit
+        // ros::Duration(2).sleep();
+        // Method A kanan
         liny_distance = 0.75;  // meter
         ang_distance = pi/2;  // rad
-        move(0, 0, -ang_speed, ang_distance/ang_speed);  // 90 degrees turn right
-        move(0, lin_speed, 0, liny_distance/lin_speed);  // going left little bit
+        move(0, 0, ang_speed, ang_distance/ang_speed);  // 90 degrees turn left
+        move(0, -lin_speed, 0, liny_distance/lin_speed);  // going right little bit
         ros::Duration(2).sleep();
         
         // // Method B
@@ -197,6 +204,7 @@ public:
     }
 
     void approach(){
+        ROS_INFO("ROBOT IS APPROACHING THE OBJECT");
         ros::Rate rate(10);  // 10 Hz
         aligned_time_ = ros::Time(0);
         aligned_ = false;
@@ -234,7 +242,7 @@ public:
                         aligned_time_ = ros::Time::now();
                         aligned_ = true;
                     } else if((ros::Time::now() - aligned_time_).toSec() >= 4.0){
-                        ROS_INFO("Robot is going to sit next to the object");
+                        // ROS_INFO("Robot is going to sit next to the object");
                         break;
                     }
                 } else{
@@ -257,7 +265,8 @@ public:
         std::string search_points_data = location_chosen_ + "_spoints";
         std::map<std::string, std::vector<double>> search_waypoints = loadWaypoints(search_points_data);
         displayWaypointsInRoom(search_waypoints);
-        ROS_INFO("Search points for current location is loaded. Ready to search..");
+        ROS_INFO("Search points for current location is loaded.");
+        ROS_INFO("ROBOT READY TO SEARCH");
 
         while(ros::ok()){
             if(search_ && !tracked_){
@@ -296,6 +305,7 @@ public:
             rate.sleep();
         }
         ROS_INFO("Location target determined !!");
+        ROS_INFO("ROBOT GOTO TARGETED LOCATION / ROOM");
         initial_room_ = location_chosen_;
 
         // ambil dari param
@@ -315,6 +325,7 @@ public:
     }
 
     void goto_initial_room(){
+        ROS_INFO("ROBOT WILL GO BACK TO THE INITIAL ROOM");
         ros::Rate rate(10);  // 10Hz
 
         // ambil dari param
