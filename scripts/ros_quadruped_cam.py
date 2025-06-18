@@ -7,7 +7,7 @@ import torch
 ### Always import torch and ultralytics before any ROS-related imports
 import rospy
 from std_msgs.msg import Bool, Int32, Empty
-from geometry_msgs.msg import Point
+from geometry_msgs.msg import Point, PolygonStamped
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 
@@ -21,6 +21,7 @@ depth_image = None
 bridge = CvBridge()
 frame_count = 0  # For YOLO detection interval
 yolo_enabled = False  # New flag for toggling YOLO detection
+drag_bbox = None
 
 def calc_closest_pixel(depth_img, x, y, w, h):
     height, width = depth_img.shape
@@ -61,8 +62,12 @@ def cancel_tracking_callback(msg):
     tracker = None
     rospy.loginfo("Tracking canceled.")
 
+def drag_bbox_callback(msg):
+    global drag_bbox
+    drag_bbox = msg
+
 def main():
-    global tracker, tracking, clicked_point, detected_boxes, color_image, depth_image, frame_count, yolo_enabled
+    global tracker, tracking, clicked_point, detected_boxes, color_image, depth_image, frame_count, yolo_enabled, drag_bbox
 
     rospy.init_node('quadruped_cam_node', anonymous=True)
 
@@ -76,6 +81,7 @@ def main():
     rospy.Subscriber("/camera/quadruped/mouse_click", Point, mouse_callback)
     rospy.Subscriber('/yolo_enabled_quadruped', Bool, yolo_enabled_callback)
     rospy.Subscriber('/cancel_tracking', Empty, cancel_tracking_callback)
+    rospy.Subscriber('/camera/quadruped/drag_bbox', PolygonStamped, drag_bbox_callback)
 
     if torch.cuda.is_available():
         rospy.loginfo("CUDA is available, using GPU")
@@ -130,6 +136,16 @@ def main():
                         tracking = True
                         break
                 clicked_point = None
+
+            if drag_bbox:
+                top_left = drag_bbox.polygon.points[0]
+                bottom_right = drag_bbox.polygon.points[2]
+                bbox = (int(top_left.x), int(top_left.y), int(bottom_right.x-top_left.x), int(bottom_right.y-top_left.y))
+                tracker = cv2.TrackerCSRT_create()
+                tracker.init(color_image, bbox)
+                tracking = True
+                drag_bbox = None
+            
         else:
             success, bbox = tracker.update(color_image)
             if success:
