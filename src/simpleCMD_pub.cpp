@@ -12,7 +12,7 @@ int main(int argc, char** argv)
     ros::Duration(0.5).sleep();
 
     message_transformer::SimpleCMD msg;
-    msg.cmd_code = 0x21010202;
+    msg.cmd_code = 0x21010202;  // sit or stand
     msg.cmd_value = 0;
     msg.type = 0;
 

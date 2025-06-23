@@ -76,8 +76,8 @@ def main():
     bb_depth_pub = rospy.Publisher('/tracked_depth', Int32, queue_size=10)
     image_pub = rospy.Publisher('/camera/quadruped/front_cam', Image, queue_size=1)
 
-    rospy.Subscriber('/camera/color/image_raw', Image, color_callback)
-    rospy.Subscriber("/camera/aligned_depth_to_color/image_raw", Image, depth_callback)
+    rospy.Subscriber('/rs_frontcam/color/image_raw', Image, color_callback)
+    rospy.Subscriber("/rs_frontcam/aligned_depth_to_color/image_raw", Image, depth_callback)
     rospy.Subscriber("/camera/quadruped/mouse_click", Point, mouse_callback)
     rospy.Subscriber('/yolo_enabled_quadruped', Bool, yolo_enabled_callback)
     rospy.Subscriber('/cancel_tracking', Empty, cancel_tracking_callback)

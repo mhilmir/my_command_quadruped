@@ -1,7 +1,7 @@
 <launch>
   <arg name="serial_no"           default=""/>
   <arg name="json_file_path"      default=""/>
-  <arg name="camera"              default="camera"/>
+  <arg name="camera"              default="rs_frontcam"/>
   <arg name="tf_prefix"           default="$(arg camera)"/>
 
   <arg name="fisheye_width"       default="640"/>
