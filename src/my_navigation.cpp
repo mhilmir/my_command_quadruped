@@ -189,13 +189,15 @@ public:
         // liny_distance = 0.75;  // meter
         // ang_distance = pi/2;  // rad
         // move(0, 0, -ang_speed, ang_distance/ang_speed);  // 90 degrees turn right
-        // move(0, lin_speed, 0, liny_distance/lin_speed);  // going left little bit
+        // move(0, lin_speed, 0, liny_distance/lin_speed);  // going left
         // ros::Duration(2).sleep();
         // Method A kanan
+        linx_distance = 0.25;
         liny_distance = 0.65;  // meter
         ang_distance = pi/2;  // rad
         move(0, 0, ang_speed, ang_distance/ang_speed);  // 90 degrees turn left
-        move(0, -lin_speed, 0, liny_distance/lin_speed);  // going right little bit
+        move(0, -lin_speed, 0, liny_distance/lin_speed);  // going right
+        move(lin_speed, 0, 0, linx_distance/lin_speed);  // go forward little bit
         ros::Duration(2).sleep();
         
         // // Method B
@@ -205,6 +207,7 @@ public:
         // move(lin_speed, 0, 0, linx_distance/lin_speed);  // move forward
         // move(0, 0, -ang_speed, ang_distance/ang_speed);  // 90 degrees turn right
         // move(0, lin_speed, 0, liny_distance/lin_speed);  // move left
+        // ros::Duration(2).sleep();
 
         ROS_INFO("Finish, now Sit down");
         simpleCMD_send(0x21010202, 0, 0);  // robot sit/stand

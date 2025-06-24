@@ -329,7 +329,7 @@ int main(int argc, char** argv){
 
 
     // // karena vel xy yaw langsung dikasi gede ?? hmm keknya ga
-    // // karena udah dikirim cmd_vel tapi auto mode belom nyala, terus pas nyalain auto mode lalu ngirim lagi, jadi ada suatu buffer yg bikin jadi gajelas ??
+    // // karena udah dikirim cmd_vel tapi auto mode belom nyala, terus pas nyalain auto mode lalu ngirim lagi, jadi ada suatu buffer yg bikin jadi gajelas ?? kayaknya ga deh, kayaknya murni karena kesalahan perhitungan shg ada value yg tinggi bgt mengakibatkan robotnya langsung gerak cuepet shg kaya mau backflip
     // void go_to(geometry_msgs::PoseStamped& target_pose){
     //     geometry_msgs::Twist vel;
     //     bool done = false;
@@ -358,7 +358,7 @@ int main(int argc, char** argv){
     //         ROS_INFO("Go To x:%f y:%f yaw:%f\nCurrent x:%f y:%f yaw:%f\n", target_pose.pose.position.x, target_pose.pose.position.y, target_yaw, odom_.pose.pose.position.x, odom_.pose.pose.position.y, cur_yaw);
             
     //         // calculate error
-    //         double error_x = target_pose.pose.position.x - odom_.pose.pose.orientation.x;
+    //         double error_x = target_pose.pose.position.x - odom_.pose.pose.orientation.x;  // WAH INI KOCAK POSITION KOK DIKURANGI ORIENTATION
     //         double error_y = target_pose.pose.position.y - odom_.pose.pose.orientation.y;
     //         double error_yaw = target_yaw - cur_yaw;
 
