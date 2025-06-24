@@ -192,7 +192,7 @@ public:
         // move(0, lin_speed, 0, liny_distance/lin_speed);  // going left
         // ros::Duration(2).sleep();
         // Method A kanan
-        linx_distance = 0.25;
+        linx_distance = 0.15;
         liny_distance = 0.65;  // meter
         ang_distance = pi/2;  // rad
         move(0, 0, ang_speed, ang_distance/ang_speed);  // 90 degrees turn left
@@ -353,22 +353,33 @@ public:
         ros::spinOnce();
         rate.sleep();
 
-        ROS_INFO("ROBOT WILL GO BACK TO THE INITIAL ROOM");
+        // ROS_INFO("ROBOT WILL GO BACK TO THE INITIAL ROOM");
 
-        // ambil dari param
-        std::map<std::string, std::vector<double>> goal_waypoints = loadWaypoints(initial_room_);
-        displayWaypointsInRoom(goal_waypoints);
-        ROS_INFO("Waypoints Loaded for the respective location");
+        // // ambil dari param
+        // std::map<std::string, std::vector<double>> goal_waypoints = loadWaypoints(initial_room_);
+        // displayWaypointsInRoom(goal_waypoints);
+        // ROS_INFO("Waypoints Loaded for the respective location");
 
-        // menuju lokasi
-        for (const auto& pair : goal_waypoints) {
-            const std::string& wp_name = pair.first;
-            const std::vector<double>& pose = pair.second;
+        // // menuju lokasi
+        // for (const auto& pair : goal_waypoints) {
+        //     const std::string& wp_name = pair.first;
+        //     const std::vector<double>& pose = pair.second;
 
-            ROS_INFO("[Navigating]... Go To %s", wp_name.c_str());
-            // send_goal(pose[0], pose[1], pose[2]);
-        }
-        ROS_INFO("Robot now in %s", initial_room_.c_str());
+        //     ROS_INFO("[Navigating]... Go To %s", wp_name.c_str());
+        //     // send_goal(pose[0], pose[1], pose[2]);
+        // }
+        // ROS_INFO("Robot now in %s", initial_room_.c_str());
+
+        // Untuk Sementara
+        double lin_speed = 0.2;  // m/s
+        double ang_speed = 0.30;  // rad/s
+        double linx_distance, liny_distance, ang_distance;
+        linx_distance = 1.0;
+        ang_distance = pi/2;  // rad
+        move(-lin_speed, 0, 0, linx_distance/lin_speed);  // go backward
+        move(0, 0, ang_speed, ang_distance/ang_speed);  // 90 degrees turn left
+        move(lin_speed, 0, 0, linx_distance/lin_speed);  // go forward little bit
+        ros::Duration(2).sleep();
 
     }
 
