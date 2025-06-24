@@ -34,6 +34,7 @@ public:
         vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
         simpleCMD_pub_ = nh_.advertise<message_transformer::SimpleCMD>("/simple_cmd", 10);
         navman_pub_ = nh_.advertise<std_msgs::Bool>("/navman_comm", 1);
+        nav_status_pub_ = nh_.advertise<std_msgs::String>("/nav_status", 1);
         
         // ROS_INFO("Waiting for action server to start...");
         // client_->waitForServer();  // Optional: wait in constructor
@@ -42,7 +43,7 @@ public:
         frame_width_ = 640;
         center_threshold_ = 40;
         desired_distance_ = 650;      // mm
-        distance_threshold_ = 150;
+        distance_threshold_ = 180;
         
         // aligned_time_ = ros::Time(0);
         // aligned_ = false;
@@ -173,6 +174,12 @@ public:
     }
 
     void approach_sit(){
+        ros::Rate rate(10);
+        nav_status_msg.data = "Approach And Sit Next to the Object";
+        nav_status_pub_.publish(nav_status_msg);
+        ros::spinOnce();
+        rate.sleep();
+
         ROS_INFO("ROBOT IS GOING TO SIT NEXT TO THE OBJECT");
         double lin_speed = 0.2;  // m/s
         double ang_speed = 0.30;  // rad/s
@@ -185,7 +192,7 @@ public:
         // move(0, lin_speed, 0, liny_distance/lin_speed);  // going left little bit
         // ros::Duration(2).sleep();
         // Method A kanan
-        liny_distance = 0.75;  // meter
+        liny_distance = 0.65;  // meter
         ang_distance = pi/2;  // rad
         move(0, 0, ang_speed, ang_distance/ang_speed);  // 90 degrees turn left
         move(0, -lin_speed, 0, liny_distance/lin_speed);  // going right little bit
@@ -201,6 +208,7 @@ public:
 
         ROS_INFO("Finish, now Sit down");
         simpleCMD_send(0x21010202, 0, 0);  // robot sit/stand
+        ros::Duration(4).sleep();
     }
 
     void approach(){
@@ -225,7 +233,7 @@ public:
                 
                 int distance_error = desired_distance_ - depth_;
                 if (std::abs(distance_error) > distance_threshold_){
-                    vel.linear.x = -0.000125 * distance_error;  // Move forward/backward
+                    vel.linear.x = -0.00025 * distance_error;  // Move forward/backward
                     ROS_INFO("vel lin x : %f", vel.linear.x);
                     ROS_INFO("distance error: %d", distance_error);
                 } else{
@@ -253,6 +261,9 @@ public:
             }
 
             vel_pub_.publish(vel);
+
+            nav_status_msg.data = "Tracking the Object to Approach It";
+            nav_status_pub_.publish(nav_status_msg);
             ros::spinOnce();
             rate.sleep();
         }
@@ -290,6 +301,8 @@ public:
                 break;
             }
 
+            nav_status_msg.data = "Robot Searching The Object";
+            nav_status_pub_.publish(nav_status_msg);
             ros::spinOnce();
             rate.sleep();
         }
@@ -300,7 +313,8 @@ public:
 
         ROS_INFO("Waiting for location input...");
         while (ros::ok() && !goto_){
-
+            nav_status_msg.data = "Waiting For Target Location Input";
+            nav_status_pub_.publish(nav_status_msg);
             ros::spinOnce();
             rate.sleep();
         }
@@ -312,6 +326,11 @@ public:
         std::map<std::string, std::vector<double>> goal_waypoints = loadWaypoints(location_chosen_);
         displayWaypointsInRoom(goal_waypoints);
         ROS_INFO("Waypoints Loaded for the respective location");
+
+        nav_status_msg.data = "Go To Target Location";
+        nav_status_pub_.publish(nav_status_msg);
+        ros::spinOnce();
+        rate.sleep();
 
         // menuju lokasi
         for (const auto& pair : goal_waypoints) {
@@ -325,8 +344,13 @@ public:
     }
 
     void goto_initial_room(){
-        ROS_INFO("ROBOT WILL GO BACK TO THE INITIAL ROOM");
         ros::Rate rate(10);  // 10Hz
+        nav_status_msg.data = "Go Back to Initial Location or Room";
+        nav_status_pub_.publish(nav_status_msg);
+        ros::spinOnce();
+        rate.sleep();
+
+        ROS_INFO("ROBOT WILL GO BACK TO THE INITIAL ROOM");
 
         // ambil dari param
         std::map<std::string, std::vector<double>> goal_waypoints = loadWaypoints(initial_room_);
@@ -362,6 +386,8 @@ public:
             ROS_INFO("wait for the arm finish the grasping job");
             while(ros::ok() && (active_==false)){
                 // ROS_INFO("...");
+                nav_status_msg.data = "Waiting For The Arm to Finish Grasping Job";
+                nav_status_pub_.publish(nav_status_msg);
                 ros::spinOnce();
                 rate.sleep();
             }
@@ -369,9 +395,11 @@ public:
             
             ros::Duration(2).sleep();
             simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
+            ros::Duration(4).sleep();
             goto_initial_room();
             ros::Duration(2).sleep();
             simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
+            ros::Duration(4).sleep();
             active_ = false;
             navman_msg_.data = true;
             navman_pub_.publish(navman_msg_);
@@ -381,6 +409,8 @@ public:
             ROS_INFO("wait for the arm finish the placement job");
             while(ros::ok() && (active_==false)){
                 // ROS_INFO("...");
+                nav_status_msg.data = "Waiting For The Arm to Finish Placement Job";
+                nav_status_pub_.publish(nav_status_msg);
                 ros::spinOnce();
                 rate.sleep();
             }
@@ -388,6 +418,7 @@ public:
             
             ros::Duration(2).sleep();
             simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
+            ros::Duration(4).sleep();
         }
             
     }
@@ -437,8 +468,10 @@ private:
     ros::Publisher vel_pub_;
     ros::Publisher simpleCMD_pub_;
     ros::Publisher navman_pub_;
+    ros::Publisher nav_status_pub_;
 
     std_msgs::Bool navman_msg_; 
+    std_msgs::String nav_status_msg;
     bool active_;  // indicates whether this node should run navigation or wait for manipulation task
     std::string initial_room_;
 
