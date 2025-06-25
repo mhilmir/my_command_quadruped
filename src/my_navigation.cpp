@@ -41,9 +41,9 @@ public:
         // ROS_INFO("Action server started.");
         
         frame_width_ = 640;
-        center_threshold_ = 40;
+        center_threshold_ = 32;  // before: 40
         desired_distance_ = 650;      // mm
-        distance_threshold_ = 180;
+        distance_threshold_ = 50;  // before: 180
         
         // aligned_time_ = ros::Time(0);
         // aligned_ = false;
@@ -95,7 +95,7 @@ public:
 
         simpleCMD_pub_.publish(msg);
         ROS_INFO("Published SimpleCMD: code=%d, value=%d, type=%d", msg.cmd_code, msg.cmd_value, msg.type);
-        ros::Duration(7.0).sleep();  // small pause
+        ros::Duration(5.0).sleep();  // small pause
     }
 
     std::map<std::string, std::vector<double>> loadWaypoints(const std::string& room) {
@@ -220,7 +220,7 @@ public:
 
         ROS_INFO("Finish, now Sit down");
         simpleCMD_send(0x21010202, 0, 0);  // robot sit/stand
-        ros::Duration(3).sleep();
+        // ros::Duration(1).sleep();
     }
 
     void approach(){
@@ -245,7 +245,7 @@ public:
                 
                 int distance_error = desired_distance_ - depth_;
                 if (std::abs(distance_error) > distance_threshold_){
-                    vel.linear.x = -0.00030 * distance_error;  // Move forward/backward
+                    vel.linear.x = -0.00100 * distance_error;  // Move forward/backward
                     vel.linear.x = constrain_vel_x(vel.linear.x);
                     ROS_INFO("vel lin x : %f", vel.linear.x);
                     ROS_INFO("distance error: %d", distance_error);
@@ -417,13 +417,13 @@ public:
             }
             ROS_INFO("arm has been finished the grasping job\n");
             
-            ros::Duration(2).sleep();
+            // ros::Duration(2).sleep();
             simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
-            ros::Duration(3).sleep();
+            // ros::Duration(1).sleep();
             goto_initial_room();
-            ros::Duration(2).sleep();
+            // ros::Duration(2).sleep();
             simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
-            ros::Duration(3).sleep();
+            // ros::Duration(1).sleep();
             active_ = false;
             navman_msg_.data = true;
             navman_pub_.publish(navman_msg_);
@@ -440,9 +440,9 @@ public:
             }
             ROS_INFO("arm has been finished the placement job\n");
             
-            ros::Duration(2).sleep();
+            // ros::Duration(2).sleep();
             simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
-            ros::Duration(3).sleep();
+            // ros::Duration(1).sleep();
         }
             
     }
