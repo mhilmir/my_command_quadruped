@@ -51,6 +51,15 @@ public:
         active_ = false;
     }
 
+    double constrain_vel_x(double value) {
+        if (value > 0.2)
+            return 0.2;
+        else if (value < -0.2)
+            return -0.2;
+        else
+            return value;
+    }
+
     void move(double linear_x, double linear_y, double angular_z, double duration){
         ROS_INFO("Robot move for %f seconds, with speed:\n  lin_x:%f lin_y:%f ang_z:%f", duration, linear_x, linear_y, angular_z);
 
@@ -211,7 +220,7 @@ public:
 
         ROS_INFO("Finish, now Sit down");
         simpleCMD_send(0x21010202, 0, 0);  // robot sit/stand
-        ros::Duration(4).sleep();
+        ros::Duration(3).sleep();
     }
 
     void approach(){
@@ -236,7 +245,8 @@ public:
                 
                 int distance_error = desired_distance_ - depth_;
                 if (std::abs(distance_error) > distance_threshold_){
-                    vel.linear.x = -0.00025 * distance_error;  // Move forward/backward
+                    vel.linear.x = -0.00030 * distance_error;  // Move forward/backward
+                    vel.linear.x = constrain_vel_x(vel.linear.x);
                     ROS_INFO("vel lin x : %f", vel.linear.x);
                     ROS_INFO("distance error: %d", distance_error);
                 } else{
@@ -409,11 +419,11 @@ public:
             
             ros::Duration(2).sleep();
             simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
-            ros::Duration(4).sleep();
+            ros::Duration(3).sleep();
             goto_initial_room();
             ros::Duration(2).sleep();
             simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
-            ros::Duration(4).sleep();
+            ros::Duration(3).sleep();
             active_ = false;
             navman_msg_.data = true;
             navman_pub_.publish(navman_msg_);
@@ -432,7 +442,7 @@ public:
             
             ros::Duration(2).sleep();
             simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
-            ros::Duration(4).sleep();
+            ros::Duration(3).sleep();
         }
             
     }
