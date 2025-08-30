@@ -75,8 +75,9 @@ int main(int argc, char** argv) {
     ros::Duration(1.0).sleep();  // Let subscriber connect
 
     // Example usage
-    send_goal(3.28, 0.665, 0.0);  // tes 1 biarin nyampe , tes 2 cancel tengah jalan
-    send_goal(3.28, 0.665, 0.0, true);  // tes 1 biarin nyampe , tes 2 cancel tengah jalan
+    // tes 1 biarin nyampe , tes 2 cancel tengah jalan
+    send_goal(3.28, 0.665, 0.0);
+    send_goal(3.28, 0.665, 0.0, true);
 
     return 0;
 }
