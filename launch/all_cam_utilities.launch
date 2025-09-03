@@ -1,0 +1,4 @@
+<launch>
+  <include file="$(find my_command_quadruped)/launch/rs_quadruped.launch" />
+  <node pkg="my_command_quadruped" type="ros_quadruped_cam.py" name="quadruped_cam_node" respawn="true" launch-prefix="bash -c 'sleep 10; $0 $@'" />
+</launch>
