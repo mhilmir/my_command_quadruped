@@ -36,9 +36,14 @@ int main(int argc, char** argv) {
     ros::init(argc, argv, "nav_setpoint_node");
     ros::NodeHandle nh;
 
-    sendGoal(3.28, 0.665, 0.0);  // kira2 tengah depan ruangan 
-    sendGoal(3.62, 1.6, 0.0);  // depan meja solder
-    sendGoal(0.888, 0.626, 0.0);  // kira2 tengah belakang ruangan
+    // TW2 Lt9
+    // sendGoal(3.28, 0.665, 0.0);  // kira2 tengah depan ruangan 
+    // sendGoal(3.62, 1.6, 0.0);  // depan meja solder
+    // sendGoal(0.888, 0.626, 0.0);  // kira2 tengah belakang ruangan
+
+    // TF
+    sendGoal(3.82, 2.77, 1.5708);  // Depan Raisa
+    sendGoal(0.687, 0.272, 0.0);  // Posisi awal
 
     return 0;
 }
