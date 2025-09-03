@@ -1,5 +1,5 @@
 <launch>
-  <arg name="serial_no"           default=""/>
+  <arg name="serial_no"           default="327122071151"/>
   <arg name="json_file_path"      default=""/>
   <arg name="camera"              default="rs_frontcam"/>
   <arg name="tf_prefix"           default="$(arg camera)"/>
