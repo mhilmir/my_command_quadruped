@@ -4,28 +4,21 @@
 #include <std_msgs/Bool.h>
 #include <tf/tf.h>
 
+// Global flag
+bool search_ = false;
+actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction>* client_ptr = nullptr;
 
-// Command To Cancel Navigation Process :
-// rostopic pub /search_status std_msgs/Bool "data: false"
-
-
-
-// Declare a global client and cancel flag
-actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> client("move_base", true);
-bool search_ = true;
-
-// Only update the flag in callback
+// Callback
 void searchstatusCallback(const std_msgs::Bool::ConstPtr& msg) {
     search_ = msg->data;
 }
 
 void send_goal(double x, double y, double theta, bool search_mode=false) {
-
-    if(search_mode && !search_)
+    if (search_mode && !search_)
         return;
 
     ROS_INFO("Waiting for the move_base action server...");
-    client.waitForServer();
+    client_ptr->waitForServer();
     ROS_INFO("Got it");
 
     move_base_msgs::MoveBaseGoal goal;
@@ -41,28 +34,29 @@ void send_goal(double x, double y, double theta, bool search_mode=false) {
     goal.target_pose.pose.orientation.w = quat.w();
 
     ROS_INFO("Sending goal: x=%.2f, y=%.2f, theta=%.2f", x, y, theta);
-    client.sendGoal(goal);
+    client_ptr->sendGoal(goal);
 
-    ros::Rate rate(10);  // 10 Hz loop rate
-    while (ros::ok() && !client.getState().isDone()) {
+    ros::Rate rate(10);
+    while (ros::ok() && !client_ptr->getState().isDone()) {
         ros::spinOnce();
-        
-        if (search_mode && !search_ && 
-            (client.getState() == actionlib::SimpleClientGoalState::ACTIVE ||
-            client.getState() == actionlib::SimpleClientGoalState::PENDING)) {
-                ROS_WARN("Goal canceled due to external signal.");
-                client.cancelGoal();
-                break;
+
+        if (search_mode && !search_ &&
+            (client_ptr->getState() == actionlib::SimpleClientGoalState::ACTIVE ||
+             client_ptr->getState() == actionlib::SimpleClientGoalState::PENDING)) {
+            ROS_WARN("Goal canceled due to external signal.");
+            client_ptr->cancelGoal();
+            break;
         }
         rate.sleep();
     }
 
     if (search_mode && !search_) {
         ROS_INFO("Goal was canceled.");
-    } else if (client.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+    } else if (client_ptr->getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
         ROS_INFO("Goal reached successfully.");
     } else {
-        ROS_WARN("Goal failed or interrupted. State: %s", client.getState().toString().c_str());
+        ROS_WARN("Goal failed or interrupted. State: %s",
+                 client_ptr->getState().toString().c_str());
     }
 }
 
@@ -72,15 +66,15 @@ int main(int argc, char** argv) {
 
     ros::Subscriber search_sub = nh.subscribe("/search_status", 10, searchstatusCallback);
 
+    // Create action client AFTER init()
+    actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> client("move_base", true);
+    client_ptr = &client;
+
     ros::Duration(1.0).sleep();  // Let subscriber connect
 
-    // tes 1 biarin nyampe , tes 2 cancel tengah jalan
-
-    // // TW2 Lt9
-    // send_goal(3.28, 0.665, 0.0);
-    // send_goal(3.28, 0.665, 0.0, true);
-
-    // TF
+    // Example goals
+    send_goal(3.82, 2.77, 1.5708);       // Depan Raisa
+    send_goal(0.687, 0.272, 0.0, true);  // Posisi awal
 
     return 0;
 }
