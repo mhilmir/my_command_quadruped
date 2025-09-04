@@ -134,6 +134,7 @@ public:
     void send_goal(double x, double y, double theta, bool search_mode=false) {
 
         if(search_mode && !search_)
+            ROS_INFO("ABORTED!!! You search mode is off, Sir");
             return;
 
         ROS_INFO("Waiting for the move_base action server...");
@@ -341,6 +342,7 @@ public:
         ros::spinOnce();
         rate.sleep();
 
+        ROS_INFO("Robot is going to %s", location_chosen_.c_str());
         // menuju lokasi
         for (const auto& pair : goal_waypoints) {
             const std::string& wp_name = pair.first;
@@ -349,7 +351,6 @@ public:
             ROS_INFO("[Navigating]... Go To %s", wp_name.c_str());
             send_goal(pose[0], pose[1], pose[2]);
         }
-        ROS_INFO("Robot now in %s", location_chosen_.c_str());
     }
 
     void goto_initial_room(){
