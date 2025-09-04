@@ -282,6 +282,8 @@ public:
     void search(){
         ros::Rate rate(10);  // 10 Hz
 
+        ros::spinOnce();
+        rate.sleep();
         // ambil dari param
         std::string search_points_data = location_chosen_ + "_spoints";
         std::map<std::string, std::vector<double>> search_waypoints = loadWaypoints(search_points_data);
@@ -303,7 +305,6 @@ public:
                     rate.sleep();
                     if(!search_ || tracked_) break;
                 }
-                
             }
 
             if(tracked_ && !search_){
@@ -391,11 +392,12 @@ public:
     }
 
     void spin(){
+        ros::Duration(2.0).sleep();  // Let subscriber connect
         ros::Rate rate(10);
         while(ros::ok()){
             
-            goto_location();
-            // search();
+            // goto_location();
+            search();
             // approach();
             // approach_sit();
             // active_ = false;
