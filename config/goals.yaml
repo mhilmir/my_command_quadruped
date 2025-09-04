@@ -1,10 +1,9 @@
-Ruangan_901:
-  wp1: [3.28, 0.665, 0.0]
-  wp2: [3.28, 0.665, 0.0]
+Ruangan_901:  # TF (Posisi Awal)
+  wp1: [0.687, 0.272, 0.0]
 
-Ruangan_903:
-  wp1: [3.28, 0.665, 0.0]
+Ruangan_903:  # TF (Depan Raisa)
+  wp1: [3.82, 2.77, 1.5708]
 
-Lift_Barat:
-  wp1: [3.28, 0.665, 0.0]
-  wp2: [3.28, 0.665, 0.0]
+Lift_Barat:  # TF (Depan 3D Print)
+  wp1: [5.85, -0.649, -1.5708]
+  wp2: [4.78, -5.63, 0.0]
