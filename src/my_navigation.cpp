@@ -131,11 +131,12 @@ public:
     }
 
     // theta 0 itu depan robot
-    void send_goal(double x, double y, double theta, bool search_mode=false) {
+    void send_goal(double x, double y, double theta, bool search_function=false) {
 
-        if(search_mode && !search_)
+        if(search_function && !search_){
             ROS_INFO("ABORTED!!! You search mode is off, Sir");
             return;
+        }
 
         ROS_INFO("Waiting for the move_base action server...");
         client_.waitForServer();
@@ -160,7 +161,7 @@ public:
         while (ros::ok() && !client_.getState().isDone()) {
             ros::spinOnce();
             
-            if (search_mode && !search_ && 
+            if (search_function && !search_ && 
                 (client_.getState() == actionlib::SimpleClientGoalState::ACTIVE ||
                 client_.getState() == actionlib::SimpleClientGoalState::PENDING)) {
                     ROS_WARN("Goal canceled due to external signal.");
@@ -170,7 +171,7 @@ public:
             rate.sleep();
         }
 
-        if (search_mode && !search_) {
+        if (search_function && !search_) {
             ROS_INFO("Goal was canceled.");
         } else if (client_.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
             ROS_INFO("Goal reached successfully.");
@@ -300,7 +301,7 @@ public:
                     const std::vector<double>& pose = pair.second;
 
                     ROS_INFO("[Searching]... Go To %s", wp_name.c_str());
-                    // send_goal(pose[0], pose[1], pose[2], true);
+                    send_goal(pose[0], pose[1], pose[2], true);
                     ros::spinOnce();
                     rate.sleep();
                     if(!search_ || tracked_) break;
@@ -396,7 +397,7 @@ public:
         ros::Rate rate(10);
         while(ros::ok()){
             
-            // goto_location();
+            goto_location();
             search();
             // approach();
             // approach_sit();
