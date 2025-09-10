@@ -166,6 +166,7 @@ add_executable(my_navigation_node src/my_navigation.cpp)
 add_executable(param_access_node src/param_access.cpp)
 add_executable(nav_setpoint_cancel_node src/nav_setpoint_cancel.cpp)
 add_executable(test_comm_quadruped_node src/test_comm_quadruped.cpp)
+add_executable(check_nav_pose_node src/check_nav_pose.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -185,6 +186,7 @@ add_dependencies(my_navigation_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin
 add_dependencies(param_access_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(nav_setpoint_cancel_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(test_comm_quadruped_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(check_nav_pose_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(hello_world_cpp_node ${catkin_LIBRARIES})
@@ -197,6 +199,7 @@ target_link_libraries(my_navigation_node ${catkin_LIBRARIES})
 target_link_libraries(param_access_node ${catkin_LIBRARIES})
 target_link_libraries(nav_setpoint_cancel_node ${catkin_LIBRARIES})
 target_link_libraries(test_comm_quadruped_node ${catkin_LIBRARIES})
+target_link_libraries(check_nav_pose_node ${catkin_LIBRARIES})
 
 #############
 ## Install ##

@@ -14,6 +14,8 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <tf/transform_listener.h>
+#include <geometry_msgs/Pose2D.h>
 
 #define pi 3.14159265358979323846
 #define S_TWO_PI 6.283185307179586
@@ -45,6 +47,8 @@ public:
         // aligned_ = false;
 
         active_ = false;
+
+        pose_ready_ = false;  // to indicate whether the nav pose transformation is ready or not
     }
 
     double constrain_vel_x(double value) {
@@ -395,10 +399,26 @@ public:
     void spin(){
         ros::Duration(2.0).sleep();  // Let subscriber connect
         ros::Rate rate(10);
+
+        // make sure pose by nav is ready
+        while(ros::ok()){
+            updatePose();
+
+            if(pose_ready_){
+                // ROS_INFO("Current pose: (x=%.2f, y=%.2f, yaw=%.2f)", current_pose_.x, current_pose_.y, current_pose_.theta);
+                initial_pose_ = current_pose_;
+                ROS_INFO("Initial pose: (x=%.2f, y=%.2f, yaw=%.2f)", initial_pose_.x, initial_pose_.y, initial_pose_.theta);
+                break;
+            }
+
+            ros::spinOnce();
+            rate.sleep();
+        }
+
         while(ros::ok()){
             
-            goto_location();
-            search();
+            // goto_location();
+            // search();
             // approach();
             // approach_sit();
             // active_ = false;
@@ -476,6 +496,25 @@ private:
         active_ = !(msg->data);
     }
 
+    void updatePose() {
+        tf::StampedTransform transform;
+        try {
+            tf_listener_.lookupTransform("map", "base_link", ros::Time(0), transform);
+
+            current_pose_.x = transform.getOrigin().x();
+            current_pose_.y = transform.getOrigin().y();
+
+            double roll, pitch, yaw;
+            tf::Matrix3x3(transform.getRotation()).getRPY(roll, pitch, yaw);
+            current_pose_.theta = yaw;
+
+            pose_ready_ = true;
+        }
+        catch (tf::TransformException &ex) {
+            ROS_WARN_THROTTLE(1.0, "TF Error: %s", ex.what());
+        }
+    }
+
     ros::NodeHandle nh_;
     ros::Subscriber tracked_status_sub_, center_sub_, depth_sub_;
     // ros::Subscriber odom_sub_;
@@ -494,6 +533,10 @@ private:
     std::string initial_room_;
 
     actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> client_;
+    tf::TransformListener tf_listener_;   // keep listener here
+    geometry_msgs::Pose2D current_pose_;  // latest pose
+    geometry_msgs::Pose2D initial_pose_;  // initial pose
+    bool pose_ready_;
 
     geometry_msgs::Point center_;
     // nav_msgs::Odometry odom_;
