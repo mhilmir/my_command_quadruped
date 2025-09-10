@@ -331,12 +331,16 @@ public:
         while (ros::ok() && !goto_){
             nav_status_msg.data = "Waiting For Target Location Input";
             nav_status_pub_.publish(nav_status_msg);
+
+            updatePose();
+            initial_pose_ = current_pose_;
+
             ros::spinOnce();
             rate.sleep();
         }
         ROS_INFO("Location target determined !!");
         ROS_INFO("ROBOT GOTO TARGETED LOCATION / ROOM");
-        initial_room_ = location_chosen_;
+        // initial_room_ = location_chosen_;
 
         // ambil dari param
         std::map<std::string, std::vector<double>> goal_waypoints = loadWaypoints(location_chosen_);
@@ -414,8 +418,8 @@ public:
 
             if(pose_ready_){
                 // ROS_INFO("Current pose: (x=%.2f, y=%.2f, yaw=%.2f)", current_pose_.x, current_pose_.y, current_pose_.theta);
-                initial_pose_ = current_pose_;
-                ROS_INFO("Initial pose: (x=%.2f, y=%.2f, yaw=%.2f)", initial_pose_.x, initial_pose_.y, initial_pose_.theta);
+                // initial_pose_ = current_pose_;
+                // ROS_INFO("Initial pose: (x=%.2f, y=%.2f, yaw=%.2f)", initial_pose_.x, initial_pose_.y, initial_pose_.theta);
                 break;
             }
 
