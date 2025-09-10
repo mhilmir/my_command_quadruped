@@ -427,44 +427,44 @@ public:
             
             goto_location();
             search();
-            // approach();
-            // approach_sit();
-            // active_ = false;
-            // navman_msg_.data = true;
-            // navman_pub_.publish(navman_msg_);
-            // ROS_INFO("handoff to arm\n");
+            approach();
+            approach_sit();
+            active_ = false;
+            navman_msg_.data = true;
+            navman_pub_.publish(navman_msg_);
+            ROS_INFO("handoff to arm\n");
 
-            // // wait for the arm robot grasp
-            // ROS_INFO("wait for the arm finish the grasping job");
-            // while(ros::ok() && (active_==false)){
-            //     // ROS_INFO("...");
-            //     nav_status_msg.data = "Waiting For The Arm to Finish Grasping Job";
-            //     nav_status_pub_.publish(nav_status_msg);
-            //     ros::spinOnce();
-            //     rate.sleep();
-            // }
-            // ROS_INFO("arm has been finished the grasping job\n");
+            // wait for the arm robot grasp
+            ROS_INFO("wait for the arm finish the grasping job");
+            while(ros::ok() && (active_==false)){
+                // ROS_INFO("...");
+                nav_status_msg.data = "Waiting For The Arm to Finish Grasping Job";
+                nav_status_pub_.publish(nav_status_msg);
+                ros::spinOnce();
+                rate.sleep();
+            }
+            ROS_INFO("arm has been finished the grasping job\n");
             
-            // simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
+            simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
             goto_initial_room();
-            // simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
-            // active_ = false;
-            // navman_msg_.data = true;
-            // navman_pub_.publish(navman_msg_);
-            // ROS_INFO("handoff to arm\n");
+            simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
+            active_ = false;
+            navman_msg_.data = true;
+            navman_pub_.publish(navman_msg_);
+            ROS_INFO("handoff to arm\n");
 
-            // // wait for the arm robot place the object
-            // ROS_INFO("wait for the arm finish the placement job");
-            // while(ros::ok() && (active_==false)){
-            //     // ROS_INFO("...");
-            //     nav_status_msg.data = "Waiting For The Arm to Finish Placement Job";
-            //     nav_status_pub_.publish(nav_status_msg);
-            //     ros::spinOnce();
-            //     rate.sleep();
-            // }
-            // ROS_INFO("arm has been finished the placement job\n");
+            // wait for the arm robot place the object
+            ROS_INFO("wait for the arm finish the placement job");
+            while(ros::ok() && (active_==false)){
+                // ROS_INFO("...");
+                nav_status_msg.data = "Waiting For The Arm to Finish Placement Job";
+                nav_status_pub_.publish(nav_status_msg);
+                ros::spinOnce();
+                rate.sleep();
+            }
+            ROS_INFO("arm has been finished the placement job\n");
             
-            // simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
+            simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
         }
             
     }
