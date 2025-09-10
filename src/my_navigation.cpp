@@ -366,6 +366,12 @@ public:
         ros::spinOnce();
         rate.sleep();
 
+        // ROBOT GO TO INITIAL POSE
+        send_goal(initial_pose_.x, initial_pose_.y, initial_pose_.theta);
+        ros::Duration(1).sleep();
+
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         // ROS_INFO("ROBOT WILL GO BACK TO THE INITIAL ROOM");
 
         // // ambil dari param
@@ -383,16 +389,18 @@ public:
         // }
         // ROS_INFO("Robot now in %s", initial_room_.c_str());
 
-        // Untuk Sementara
-        double lin_speed = 0.2;  // m/s
-        double ang_speed = 0.30;  // rad/s
-        double linx_distance, liny_distance, ang_distance;
-        linx_distance = 1.0;
-        ang_distance = pi/2;  // rad
-        move(-lin_speed, 0, 0, linx_distance/lin_speed);  // go backward
-        move(0, 0, ang_speed, ang_distance/ang_speed);  // 90 degrees turn left
-        move(lin_speed, 0, 0, linx_distance/lin_speed);  // go forward little bit
-        ros::Duration(2).sleep();
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // // Untuk Sementara
+        // double lin_speed = 0.2;  // m/s
+        // double ang_speed = 0.30;  // rad/s
+        // double linx_distance, liny_distance, ang_distance;
+        // linx_distance = 1.0;
+        // ang_distance = pi/2;  // rad
+        // move(-lin_speed, 0, 0, linx_distance/lin_speed);  // go backward
+        // move(0, 0, ang_speed, ang_distance/ang_speed);  // 90 degrees turn left
+        // move(lin_speed, 0, 0, linx_distance/lin_speed);  // go forward little bit
+        // ros::Duration(2).sleep();
 
     }
 
@@ -417,8 +425,8 @@ public:
 
         while(ros::ok()){
             
-            // goto_location();
-            // search();
+            goto_location();
+            search();
             // approach();
             // approach_sit();
             // active_ = false;
@@ -438,7 +446,7 @@ public:
             // ROS_INFO("arm has been finished the grasping job\n");
             
             // simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
-            // goto_initial_room();
+            goto_initial_room();
             // simpleCMD_send(0x21010202, 0, 0);  // robot sit or stand
             // active_ = false;
             // navman_msg_.data = true;
