@@ -552,7 +552,7 @@ private:
 
     geometry_msgs::Point center_;
     // nav_msgs::Odometry odom_;
-    bool search_ = false;
+    bool search_ = true;
     bool goto_ = false;
     int depth_ = 0;
     bool tracked_ = false;
