@@ -376,25 +376,6 @@ public:
 
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        // ROS_INFO("ROBOT WILL GO BACK TO THE INITIAL ROOM");
-
-        // // ambil dari param
-        // std::map<std::string, std::vector<double>> goal_waypoints = loadWaypoints(initial_room_);
-        // displayWaypointsInRoom(goal_waypoints);
-        // ROS_INFO("Waypoints Loaded for the respective location");
-
-        // // menuju lokasi
-        // for (const auto& pair : goal_waypoints) {
-        //     const std::string& wp_name = pair.first;
-        //     const std::vector<double>& pose = pair.second;
-
-        //     ROS_INFO("[Navigating]... Go To %s", wp_name.c_str());
-        //     // send_goal(pose[0], pose[1], pose[2]);
-        // }
-        // ROS_INFO("Robot now in %s", initial_room_.c_str());
-
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
         // // Untuk Sementara
         // double lin_speed = 0.2;  // m/s
         // double ang_speed = 0.30;  // rad/s
