@@ -296,11 +296,23 @@ public:
         ROS_INFO("Search points for current location is loaded.");
         ROS_INFO("ROBOT READY TO SEARCH");
 
+        // penanda searchnya sampe titik mana, jadi waktu resume, robotnya ngelanjutin dari titik terakhir berhenti
+        int n = 0;
+
         while(ros::ok()){
             if(search_ && !tracked_){
                 ROS_INFO("Search the area until object detected");
 
+                int index = 0;  // indexing for the loop below
                 for (const auto& pair : search_waypoints) {
+
+                    // logic agar robot melanjutkan search dari titik terakhir berhenti
+                    if(n == search_waypoints.size()) n = 0;
+                    if(index < n){
+                        index++;
+                        continue;
+                    }
+
                     const std::string& wp_name = pair.first;
                     const std::vector<double>& pose = pair.second;
 
@@ -309,6 +321,8 @@ public:
                     ros::spinOnce();
                     rate.sleep();
                     if(!search_ || tracked_) break;
+                    index++;
+                    n++;
                 }
             }
 
@@ -340,7 +354,6 @@ public:
         }
         ROS_INFO("Location target determined !!");
         ROS_INFO("ROBOT GOTO TARGETED LOCATION / ROOM");
-        // initial_room_ = location_chosen_;
 
         // ambil dari param
         std::map<std::string, std::vector<double>> goal_waypoints = loadWaypoints(location_chosen_);
