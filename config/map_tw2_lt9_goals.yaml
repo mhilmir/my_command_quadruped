@@ -1,0 +1,25 @@
+############## PETUNJUK ORIENTASI ################
+# hadap depan [0.0]
+# hadap kiri [1.5708]
+# hadap kanan [-1.5708]
+# hadap belakang [3.14]
+##################################################
+
+Room_901:
+  wp1: [4.39, 0.715, 3.14]
+
+## semua wp-wp di bawah ini masih copas dari room 901
+Room_903:
+  wp1: [4.39, 0.715, 3.14]
+
+Pantry:
+  wp1: [4.39, 0.715, 3.14]
+
+Toilet:
+  wp1: [4.39, 0.715, 3.14]
+
+East_Escalator:
+  wp1: [4.39, 0.715, 3.14]
+
+West_Escalator:
+  wp1: [4.39, 0.715, 3.14]

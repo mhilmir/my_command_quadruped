@@ -1,6 +1,6 @@
 <launch>
   <rosparam command="delete" param="spoints"/>  <!-- untuk membuang sisa2 param sebelumnya yg kesimpen -->
-  <rosparam file="$(find my_command_quadruped)/config/goals.yaml" command="load" />
-  <rosparam file="$(find my_command_quadruped)/config/search_points.yaml" command="load" />
+  <rosparam file="$(find my_command_quadruped)/config/map_tf_goals.yaml" command="load" />
+  <rosparam file="$(find my_command_quadruped)/config/map_tf_search_points.yaml" command="load" />
   <node pkg="my_command_quadruped" type="my_navigation_node" name="my_navigation_node" output="screen"/>
 </launch>
