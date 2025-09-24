@@ -1,0 +1,14 @@
+############## PETUNJUK ORIENTASI ################
+# hadap depan [0.0]
+# hadap kiri [1.5708]
+# hadap kanan [-1.5708]
+# hadap belakang [3.14]
+##################################################
+
+# Posisi_Awal_spoints:
+
+Ruang_5G_spoints:
+  wp01: [16.1, 6.27, 1.5708]
+
+Ruang_Kantor_spoints:
+  wp01: [37.5, 5.31, 3.14]
