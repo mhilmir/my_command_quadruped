@@ -204,7 +204,7 @@ public:
         // ros::Duration(2).sleep();
         // Method A kanan
         linx_distance = 0.15;
-        liny_distance = 0.65;  // meter
+        liny_distance = 0.63;  // meter
         ang_distance = pi/2;  // rad
         move(0, 0, ang_speed, ang_distance/ang_speed);  // 90 degrees turn left
         move(0, -lin_speed, 0, liny_distance/lin_speed);  // going right
